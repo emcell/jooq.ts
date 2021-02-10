@@ -1,0 +1,5 @@
+/dist/
+/.idea/workspace.xml
+/.idea/aws.xml
+/tsconfig.tsbuildinfo
+/node_modules/
