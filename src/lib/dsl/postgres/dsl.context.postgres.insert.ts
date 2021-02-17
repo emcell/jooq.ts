@@ -12,8 +12,10 @@ import { ReturningStep } from '../returning';
 import {
   Assignment,
   FieldOrValueMap,
+  FieldsForType,
   MapValueToFieldOrValue,
 } from '../../types';
+import { DSL } from '../dsl';
 
 interface Fields {
   [P: string]: Field<any>;
@@ -21,8 +23,8 @@ interface Fields {
 
 export interface InsertContextOnConflict {
   id: string;
-  do: 'nothing' | 'excluded';
-  fields?: Assignment<any>[];
+  do: 'nothing' | 'update';
+  fields?: FieldOrValueMap<any>;
 }
 
 export interface InsertContext {
@@ -61,23 +63,37 @@ function OnConflictUpdateReturningStepImpl(
   return {} as any;
 }
 
-// function mapToAssignment<T>(fields: object: FieldOrValueMap<T>): Assignment<any>[] {
-//   const assignments: Assignment<any>[] = [];
-//   Object.keys(object).map(fieldOrValue =>{
-//     assignments.push({})
-//   })
-// }
-
 function OnConflictUpdateSetStepImpl<T>(
   context: InsertContext,
 ): OnConflictUpdateSetStep<T> {
   return {
-    set(): //      object: Partial<MapValueToFieldOrValue<T>>,
-    OnConflictUpdateReturningStep {
-      return OnConflictUpdateReturningStepImpl({ ...copyContext(context) });
+    set(
+      object: Partial<MapValueToFieldOrValue<T>>,
+    ): OnConflictUpdateReturningStep {
+      return OnConflictUpdateReturningStepImpl({
+        ...copyContext(context),
+        onConflict: {
+          ...(context.onConflict as InsertContextOnConflict),
+          fields: object,
+        },
+      });
     },
     setExcluded(): OnConflictUpdateReturningStep {
-      return {} as any;
+      const object: any = {};
+      if (!context.fields) {
+        throw new Error('dafuq');
+      }
+      const excluded = new Table('excluded');
+      Object.keys(context.fields).forEach((field) => {
+        object[field] = DSL.tableField(excluded, field);
+      });
+      return OnConflictUpdateReturningStepImpl({
+        ...copyContext(context),
+        onConflict: {
+          ...(context.onConflict as InsertContextOnConflict),
+          fields: object,
+        },
+      });
     },
   };
 }
@@ -97,8 +113,6 @@ function OnConflictStepImpl<T>(context: InsertContext): OnConflictStep<T> {
       return OnConflictUpdateSetStepImpl<T>(context);
     },
   };
-
-  return {} as any;
 }
 
 export function InsertStepImpl<T>(context: InsertContext): InsertStep<T> {

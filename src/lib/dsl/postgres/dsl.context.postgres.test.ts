@@ -74,12 +74,7 @@ describe('withDatabase', () => {
       const locations: Location[] = await create.selectFrom(LOCATION).fetch();
       console.log(locations);
       const lul = await create
-        .select({
-          id: LOCATION.id.as('fuck_this_doesnt_matter'),
-          nameLocation: LOCATION.name,
-          nameDevice: DEVICE.name,
-        })
-        .from(LOCATION.table)
+        .selectFrom(LOCATION)
         .join(DEVICE.table)
         .on(LOCATION.id.eq(DEVICE.idLocation))
         .where({
