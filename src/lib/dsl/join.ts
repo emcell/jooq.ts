@@ -1,9 +1,8 @@
 import { Condition } from '../condition';
 import { Table } from '../table';
-import { NotImplementedException } from '../exceptions';
 import { IdentifierOptions } from '../utils';
 import { DSL } from './dsl';
-import { joinDefined } from './postgres/dsl.context.postgres';
+import { joinDefined } from './postgres/dsl.context.postgres.select';
 
 export type JoinType =
   | 'inner'
@@ -34,7 +33,6 @@ export function joinTypeToSql(type: JoinType) {
     case 'full outer':
       return 'FULL OUTER JOIN';
   }
-  throw new NotImplementedException(`JoinType ${type}`);
 }
 
 export function joinTablesToString(

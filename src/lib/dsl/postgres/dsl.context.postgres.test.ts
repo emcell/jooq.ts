@@ -1,6 +1,6 @@
-import { DSL } from '../dsl';
-import { Table } from '../../table';
 import { Converter } from '../../field/field-tools';
+import { Table } from '../../table';
+import { DSL } from '../dsl';
 
 class UnknownForTsooq {}
 
@@ -73,7 +73,7 @@ describe('withDatabase', () => {
     it('shouldSelect', async () => {
       const locations: Location[] = await create.selectFrom(LOCATION).fetch();
       console.log(locations);
-      const lul = await create
+      await create
         .selectFrom(LOCATION)
         .join(DEVICE.table)
         .on(LOCATION.id.eq(DEVICE.idLocation))

@@ -1,21 +1,19 @@
-import { Table } from '../../table';
-import { Fetchable } from '../fetchable';
 import { Field } from '../../field/field';
+import { Table } from '../../table';
+import {
+  FieldOrValueMap,
+  MapValueToFieldOrValue
+} from '../../types';
+import { DSL } from '../dsl';
+import { Executable } from '../executable';
+import { Fetchable } from '../fetchable';
 import { InsertStep } from '../insert';
+import { ReturningStep } from '../returning';
 import {
   OnConflictStep,
   OnConflictUpdateReturningStep,
-  OnConflictUpdateSetStep,
+  OnConflictUpdateSetStep
 } from '../update';
-import { Executable } from '../executable';
-import { ReturningStep } from '../returning';
-import {
-  Assignment,
-  FieldOrValueMap,
-  FieldsForType,
-  MapValueToFieldOrValue,
-} from '../../types';
-import { DSL } from '../dsl';
 
 interface Fields {
   [P: string]: Field<any>;
