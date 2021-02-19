@@ -1,9 +1,21 @@
+import { Table, TableAliased, TableWithFields } from '../table';
+import { FieldsForType, TableFields } from '../types';
 import { IdentifierOptions } from '../utils';
+import { DbTypes } from './dsl';
+import { Field, FieldTable } from './field';
+import { mapFieldToDb } from './postgres/postgres-utils';
 
 export interface Fetchable<T> {
   fetch(): Promise<T[]>;
   fetchOne(): Promise<T | undefined>;
   fetchOneOrThrow(): Promise<T>;
+  asTable<
+    F extends TableFields = T extends DbTypes
+      ? { value: Field<T> }
+      : FieldsForType<T>
+  >(
+    alias: string,
+  ): TableWithFields<T, F>;
   toSql(options?: IdentifierOptions): string;
 }
 
@@ -24,12 +36,32 @@ export class FetchableData<T> implements Fetchable<T> {
     return this.data[0];
   }
 
+  dataToTable(): string {
+    return this.data
+      .map((value) => `select ${mapFieldToDb(value)}`)
+      .join(' UNION ALL ');
+  }
+  asTable<
+    F extends TableFields = T extends DbTypes
+      ? { value: Field<T> }
+      : FieldsForType<T>
+  >(alias: string): TableWithFields<T, F> {
+    const valueField = new FieldTable<T>(new Table(alias), 'value') as Field<T>;
+    const t: TableWithFields<unknown, { value: Field<T> }> = {
+      table: new TableAliased(alias, this.dataToTable()),
+      fields: { value: valueField },
+      value: valueField,
+    };
+    return t as any;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   toSql(_options?: IdentifierOptions): string {
     if (this.data.length === 0) {
       return '()';
     }
     if (typeof this.data[0] === 'string') {
-      return `(${this.data.map((value) => `'${value}'`).join(',')})`;
+      return `(${this.data.map((value) => mapFieldToDb(value)).join(',')})`;
     }
     return `${this.data.join(',')}]`;
   }

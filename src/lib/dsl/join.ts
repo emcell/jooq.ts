@@ -1,7 +1,8 @@
 import { Condition } from '../condition';
-import { Table } from '../table';
+import { TableLike } from '../table';
 import { IdentifierOptions } from '../utils';
 import { DSL } from './dsl';
+import { ContextWithJoinTables } from './from';
 import { joinDefined } from './postgres/dsl.context.postgres.select';
 
 export type JoinType =
@@ -13,9 +14,19 @@ export type JoinType =
   | 'full outer';
 
 export interface JoinContext {
-  table: Table;
+  table: TableLike;
   type: JoinType;
   conditions: Condition[];
+}
+
+export function copyJoinTables(joinTables: JoinContext[]): JoinContext[] {
+  return joinTables.map((joinTable) => {
+    return {
+      table: joinTable.table,
+      type: joinTable.type,
+      conditions: [...joinTable.conditions],
+    };
+  });
 }
 
 export function joinTypeToSql(type: JoinType) {
@@ -56,4 +67,26 @@ export interface JoinStep<TSelectStep> {
   on(condition: Condition): TSelectStep;
   on(condition: Condition[]): TSelectStep;
   on(...condition: Condition[]): TSelectStep;
+}
+
+export function AbstractJoinStepImpl<
+  FromStep,
+  ContextType extends ContextWithJoinTables
+>(
+  context: ContextType,
+  copyContext: (context: ContextType) => ContextType,
+  fromStepImpl: (context: ContextType) => FromStep,
+): JoinStep<FromStep> {
+  return {
+    on(condition: Condition | Condition[], ...rest: Condition[]): FromStep {
+      if (!Array.isArray(condition)) {
+        condition = [condition];
+      }
+      condition.push(...rest);
+      const newContext = { ...copyContext(context) };
+      const joinTable = newContext.joinTables[newContext.joinTables.length - 1];
+      joinTable.conditions = condition;
+      return fromStepImpl(newContext);
+    },
+  };
 }

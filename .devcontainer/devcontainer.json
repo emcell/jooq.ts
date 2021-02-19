@@ -9,15 +9,18 @@
 	// Use this environment variable if you need to bind mount your local source code into a new container.
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
-		"terminal.integrated.shell.linux": "/bin/bash"
-	},
+		"terminal.integrated.shell.linux": "/bin/bash",
+		},
 
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
 		"ms-azuretools.vscode-docker",
 		"dbaeumer.vscode-eslint",
 		"firsttris.vscode-jest-runner",
-		"ckolkman.vscode-postgres"
+		"ckolkman.vscode-postgres",
+		"esbenp.prettier-vscode",
+		"eamodio.gitlens",
+		"rbbit.typescript-hero",
 	],
 
 	"postCreateCommand": "yarn install",

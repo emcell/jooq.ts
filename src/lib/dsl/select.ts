@@ -1,11 +1,11 @@
+import { TableLike } from '../table';
 import { Fetchable } from './fetchable';
-import { LimitStep } from './limit';
-import { GroupByStep } from './group';
-import { WhereChainStep, WhereStep } from './where';
-import { JoinStep } from './join';
 import { FromStep } from './from';
-import { Table } from '../table';
+import { GroupByStep } from './group';
+import { JoinStep } from './join';
+import { LimitStep } from './limit';
 import { OrderStep } from './order';
+import { WhereChainStep, WhereStep } from './where';
 
 export interface SelectWhereChainStep<T>
   extends Fetchable<T>,
@@ -30,5 +30,5 @@ export interface SelectFromStep<T>
     FromStep<SelectFromStep<T>, SelectJoinStep<T>> {}
 
 export interface SelectStep<T> extends Fetchable<T> {
-  from(_table: Table): SelectFromStep<T>;
+  from(_table: TableLike): SelectFromStep<T>;
 }

@@ -1,18 +1,19 @@
+import { Except } from 'type-fest';
 import {
   Condition,
   ConditionAnd,
   ConditionOr,
   objectToConditions,
 } from '../condition';
-import { Field, FieldRaw, FieldTable } from '../field/field';
 import { makeTableDefinition, Table, TableWithFields } from '../table';
+import { FieldsForType, TableFields } from '../types';
 import { DSLContext } from './dsl.context';
+import { Field, FieldExcluded, FieldRaw, FieldTable } from './field';
+import { Converter } from './field-tools';
 import {
   DslContextPostgres,
   PostgresConfig,
 } from './postgres/dsl.context.postgres';
-import { FieldsForType } from '../types';
-import { Converter } from '../field/field-tools';
 
 export type DbTypes =
   | number
@@ -42,7 +43,7 @@ export class DSL {
   }
 
   static count(): Field<number> {
-    return {} as Field<number>;
+    return new FieldRaw('count(*)');
   }
 
   static or(_conditions: Condition[]): Condition;
@@ -86,7 +87,7 @@ export class DSL {
     return new FieldRaw<number>('random()');
   }
 
-  static tableDefinition<T, F = FieldsForType<T>>(
+  static tableDefinition<T, F extends TableFields = FieldsForType<T>>(
     table: Table<T>,
     fields: (table: Table<T>, fields: (fields: F) => F) => F,
   ): TableWithFields<T, F> {
@@ -103,5 +104,25 @@ export class DSL {
     converter?: Converter<DbType, FieldType>,
   ): Field<FieldType, DbType> {
     return new FieldTable<FieldType, DbType>(table, `${field}`, converter);
+  }
+
+  static withoutFields<T, Keys extends keyof T>(
+    tableDefinition: TableWithFields<T>,
+    ...keys: Array<Keys>
+  ): TableWithFields<Except<T, Keys>> {
+    const copy = { ...tableDefinition, fields: { ...tableDefinition.fields } };
+    for (const key of keys) {
+      delete copy[key];
+      delete copy.fields[key];
+    }
+
+    return (copy as unknown) as TableWithFields<Except<T, Keys>>;
+  }
+
+  static excluded<T>(fieldName?: string): Field<T> {
+    if (fieldName !== undefined) {
+      return new FieldTable(new Table('excluded'), fieldName);
+    }
+    return new FieldExcluded();
   }
 }

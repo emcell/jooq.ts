@@ -1,14 +1,21 @@
-import { ToSql } from './helpers';
-import { IdentifierOptions, identifierToSql } from './utils';
-import { FieldsForType } from './types';
-import { Field, FieldTable } from './field/field';
 import { DbTypes } from './dsl/dsl';
-import { Converter } from './field/field-tools';
+import { Fetchable } from './dsl/fetchable';
+import { Field, FieldTable } from './dsl/field';
+import { Converter } from './dsl/field-tools';
+import { ToSql } from './helpers';
+import { FieldsForType, TableFields } from './types';
+import { IdentifierOptions, identifierToSql } from './utils';
 
 export interface TableOptions extends IdentifierOptions {}
 
-export class Table<T = any> implements ToSql {
-  constructor(private table: string) {}
+export abstract class TableLike implements ToSql {
+  abstract toSql(options?: TableOptions): string;
+}
+
+export class Table<T = any> extends TableLike {
+  constructor(private table: string) {
+    super();
+  }
 
   toSql(options?: TableOptions): string {
     return identifierToSql(this.table, options);
@@ -27,12 +34,33 @@ export class Table<T = any> implements ToSql {
   }
 }
 
-export type TableWithFields<T, F = FieldsForType<T>> = {
-  table: Table;
+export class TableAliased extends TableLike {
+  constructor(
+    private alias: string,
+    private tableSource: Fetchable<any> | string,
+  ) {
+    super();
+  }
+  toSql(options?: TableOptions): string {
+    if (typeof this.tableSource === 'string') {
+      return `(${this.tableSource}) as ${identifierToSql(this.alias)}`;
+    } else {
+      return `(${this.tableSource.toSql(options)}) as ${identifierToSql(
+        this.alias,
+      )}`;
+    }
+  }
+}
+
+export type TableWithFields<T, F extends TableFields = FieldsForType<T>> = {
+  table: TableLike;
   fields: F;
 } & F;
 
-export function makeTableDefinition<T, F = FieldsForType<T>>(
+export function makeTableDefinition<
+  T,
+  F extends TableFields = FieldsForType<T>
+>(
   table: Table,
   fields: (table: Table, fields: (fields: F) => F) => F,
 ): TableWithFields<T, F> {

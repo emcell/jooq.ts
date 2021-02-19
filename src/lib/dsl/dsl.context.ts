@@ -1,13 +1,16 @@
-import { Field } from '../field/field';
+import { Table, TableLike, TableWithFields } from '../table';
 import {
+  FieldOrValueMap,
+  FieldsForType,
   MapTableFieldsToValue,
-  MapValueToFieldOrValue,
+  Subset,
   TableFields,
 } from '../types';
-import { Table, TableWithFields } from '../table';
+import { DeleteStep } from './delete';
 import { Fetchable } from './fetchable';
-import { SelectFromStep, SelectStep } from './select';
+import { Field } from './field';
 import { InsertStep } from './insert';
+import { SelectFromStep, SelectStep } from './select';
 import { UpdateStep } from './update';
 
 export interface DSLContext {
@@ -18,17 +21,36 @@ export interface DSLContext {
     _fields: T,
   ): SelectStep<MapTableFieldsToValue<T>>;
 
-  selectFrom(table: Table): SelectFromStep<any>;
+  selectFrom(table: TableLike): SelectFromStep<any>;
   selectFrom<T>(table: TableWithFields<T>): SelectFromStep<T>;
 
   // I've removed that one because I don't know how to differenciate
   // between Fetchable<T> and T since Fetchable isn't a class
   // insertInto<T>(table: Table, object: T): InsertStep<T>;
-  insertInto<T>(table: Table, objects: T[]): InsertStep<T>;
-  insertInto<T>(table: Table, query: Fetchable<T>): InsertStep<T>;
+  insertInto<T>(
+    table: Table,
+    fields: FieldsForType<T>,
+    objects: T[],
+  ): InsertStep<T>;
+  insertInto<T>(
+    table: Table,
+    fields: FieldsForType<T>,
+    query: Fetchable<T>,
+  ): InsertStep<T>;
+  insertInto<T>(table: TableWithFields<T>, values: T[]): InsertStep<T>;
+  insertInto<T>(table: TableWithFields<T>, query: Fetchable<T>): InsertStep<T>;
 
   update<T>(
-    table: Table,
-    object: Partial<MapValueToFieldOrValue<T>>,
+    table: TableLike,
+    fields: FieldsForType<T>,
+    values: FieldOrValueMap<T>,
   ): UpdateStep<T>;
+
+  update<T, K extends keyof T>(
+    tableDefinition: TableWithFields<T>,
+    values: FieldOrValueMap<Subset<T, K>>,
+  ): UpdateStep<Subset<T, K>>;
+
+  delete(table: TableLike): DeleteStep;
+  end(): Promise<void>;
 }

@@ -1,6 +1,6 @@
-import { LimitStep } from './limit';
-import { Field } from '../field/field';
 import { IdentifierOptions } from '../utils';
+import { Field } from './field';
+import { LimitStep } from './limit';
 
 export type SortDirection = 'asc' | 'desc';
 export interface OrderField<T> {

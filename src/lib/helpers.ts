@@ -1,4 +1,3 @@
-
-export interface ToSql<T ={}> {
-  toSql(options?: T):string;
+export interface ToSql<T = any> {
+  toSql(options?: T): string;
 }

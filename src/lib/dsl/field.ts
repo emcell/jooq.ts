@@ -37,6 +37,7 @@ export abstract class Field<
   abstract ge(value: Field<T> | T): Condition;
   abstract in(values: T[]): Condition;
   abstract in(select: Fetchable<T>): Condition;
+  abstract in(select: Fetchable<T> | T[]): Condition;
   abstract notIn(values: T[]): Condition;
   abstract notIn(select: Fetchable<T>): Condition;
 
@@ -64,6 +65,9 @@ export abstract class Field<
   abstract sum(value: Field<T>): Field<number>;
 
   abstract operator(operator: string, value: Field<T> | T): Condition;
+
+  abstract like(value: string): Condition;
+  abstract ilike(value: string): Condition;
 }
 
 export abstract class FieldAbstract<
@@ -193,6 +197,13 @@ export abstract class FieldAbstract<
   operator(operator: string, value: Field<T> | T): Condition {
     return new ConditionCompare(this, operator, value);
   }
+
+  like(value: string): Condition {
+    return new ConditionCompare(this, 'LIKE', value);
+  }
+  ilike(value: string): Condition {
+    return new ConditionCompare(this, 'ILIKE', value);
+  }
 }
 
 export class FieldRaw<
@@ -217,8 +228,8 @@ export class FieldTable<
   DbType extends DbTypes = T extends DbTypes ? T : DbTypes
 > extends FieldAbstract<T, DbType> {
   constructor(
-    private table: Table,
-    private field: string,
+    public table: Table,
+    public field: string,
     public converter?: Converter<DbType, T>,
   ) {
     super(converter);
@@ -240,8 +251,8 @@ export class FieldAs<
   DbType extends DbTypes = T extends DbTypes ? T : DbTypes
 > extends FieldAbstract<T, DbType> {
   constructor(
-    private field: Field<T, DbType>,
-    private alias: string,
+    public field: Field<T, DbType>,
+    public alias: string,
     public converter?: Converter<DbType, T>,
   ) {
     super(converter);
@@ -377,4 +388,20 @@ export function fieldsToStringOrAsterisk(
     return '*';
   }
   return fieldsToString(fields, options);
+}
+
+export class FieldExcluded<
+  T,
+  DbType extends DbTypes = T extends DbTypes ? T : DbTypes
+> extends FieldAbstract<T, DbType> {
+  constructor() {
+    super();
+  }
+  toSql(): string {
+    throw new Error('this should be handeleded togehter with the fields array');
+  }
+
+  getName(): string {
+    throw new Error('this should be handeleded togehter with the fields array');
+  }
 }

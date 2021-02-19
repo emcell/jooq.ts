@@ -1,4 +1,4 @@
-import { Field } from './field/field';
+import { Field } from './dsl/field';
 
 export interface TableFields {
   [P: string]: Field<unknown>;
@@ -24,3 +24,7 @@ export interface Assignment<T> {
   field: Field<T>;
   value: Field<T> | T;
 }
+
+export type Subset<T, K extends keyof T> = {
+  [P in K]: T[P];
+};

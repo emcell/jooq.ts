@@ -1,7 +1,7 @@
-import { LimitStep } from './limit';
-import { Field } from '../field/field';
-import { OrderStep } from './order';
 import { IdentifierOptions } from '../utils';
+import { Field } from './field';
+import { LimitStep } from './limit';
+import { OrderStep } from './order';
 
 export interface GroupByStep<T> extends OrderStep<T>, LimitStep<T> {
   groupBy(field: Field<any>): GroupByStep<T>;

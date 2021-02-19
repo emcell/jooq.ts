@@ -1,8 +1,9 @@
-import { IdentifierOptions } from './utils';
-import { Field } from './field/field';
-import { Fetchable } from './dsl/fetchable';
-import { FieldTools } from './field/field-tools';
 import { DSL } from './dsl/dsl';
+import { Fetchable } from './dsl/fetchable';
+import { Field } from './dsl/field';
+import { FieldTools } from './dsl/field-tools';
+import { TableFields } from './types';
+import { IdentifierOptions } from './utils';
 
 export abstract class Condition {
   abstract toSql(_options?: IdentifierOptions): string;
@@ -12,6 +13,7 @@ export class ConditionRaw extends Condition {
   constructor(private sql: string) {
     super();
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   toSql(_options?: IdentifierOptions): string {
     return this.sql;
   }
@@ -116,11 +118,22 @@ export class ConditionAnd extends Condition {
 export function objectToConditions(
   _obj: unknown,
   _operator: string,
+  fields?: TableFields | Field<unknown>,
 ): Condition[] {
-  //TODO: check against fields in context
+  const conditions: Condition[] = [];
   const obj = _obj as any;
   for (const key in obj) {
-    DSL.field<unknown>(key).operator(_operator, obj[key] as unknown);
+    if (fields) {
+      if (!(fields instanceof Field)) {
+        if (fields[key]) {
+          conditions.push(fields[key].operator(_operator, obj[key] as unknown));
+          continue;
+        }
+      }
+    }
+    conditions.push(
+      DSL.field<unknown>(key).operator(_operator, obj[key] as unknown),
+    );
   }
-  return [];
+  return conditions;
 }
