@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "incremental": true,
-    "target": "es2017",
+    "target": "es2020",
+    "lib": ["es2020"],
     "outDir": "dist/main",
     "rootDir": "src",
     "moduleResolution": "node",
@@ -10,6 +11,7 @@
     "inlineSourceMap": true,
     "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
     "resolveJsonModule": true /* Include modules imported with .json extension. */,
+    "forceConsistentCasingInFileNames": true,
 
     "strict": true /* Enable all strict type-checking options. */,
     /* Strict Type-Checking Options */

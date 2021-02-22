@@ -1,5 +1,5 @@
+import { DbTypes } from './dsl';
 import { Field, FieldRaw } from './field';
-import { DbTypes } from '../dsl/dsl';
 
 export type Converter<DbType extends DbTypes, FieldType> = {
   fromDb(value: DbType): FieldType;
