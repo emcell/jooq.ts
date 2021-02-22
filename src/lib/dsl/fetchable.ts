@@ -63,6 +63,6 @@ export class FetchableData<T> implements Fetchable<T> {
     if (typeof this.data[0] === 'string') {
       return `(${this.data.map((value) => mapFieldToDb(value)).join(',')})`;
     }
-    return `${this.data.join(',')}]`;
+    return `${this.data.join(',')}`;
   }
 }

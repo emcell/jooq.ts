@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-
 import {
   DEVICE,
   LOCATION,
@@ -357,6 +356,13 @@ describe('withDatabase', () => {
         expect(location.id).toBe(location.idFromDevice);
         expect(location.name.indexOf('dev') === 0);
       }
+    });
+    it('select in array', async () => {
+      const locations = await create
+        .selectFrom(LOCATION)
+        .where(LOCATION.id.in([testLocations[0].id]))
+        .fetch();
+      expect(locations.length).toBe(1);
     });
   });
 });

@@ -1,5 +1,5 @@
 Arguments: 
-  /usr/local/bin/node /usr/share/yarn/bin/yarn.js add -D @typescript-eslint/promise-function-async
+  /usr/local/bin/node /usr/share/yarn/bin/yarn.js publish
 
 PATH: 
   /vscode/vscode-server/bin/x64/622cb03f7e070a9670c94bae1a45d78d7181fbd4/bin:/usr/local/share/npm-global/bin:/usr/local/share/nvm/current/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root/.local/bin
@@ -14,32 +14,36 @@ Platform:
   linux x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/@typescript-eslint%2fpromise-function-async: Not found
-      at Request.params.callback [as _callback] (/usr/share/yarn/lib/cli.js:66988:18)
-      at Request.self.callback (/usr/share/yarn/lib/cli.js:140749:22)
-      at Request.emit (events.js:315:20)
-      at Request.<anonymous> (/usr/share/yarn/lib/cli.js:141721:10)
-      at Request.emit (events.js:315:20)
-      at IncomingMessage.<anonymous> (/usr/share/yarn/lib/cli.js:141643:12)
-      at Object.onceWrapper (events.js:421:28)
-      at IncomingMessage.emit (events.js:327:22)
-      at endReadableNT (internal/streams/readable.js:1327:12)
-      at processTicksAndRejections (internal/process/task_queues.js:80:21)
+  Error: canceled
+      at Interface.<anonymous> (/usr/share/yarn/lib/cli.js:137009:13)
+      at Interface.emit (events.js:315:20)
+      at Interface._ttyWrite (readline.js:875:16)
+      at ReadStream.onkeypress (readline.js:213:10)
+      at ReadStream.emit (events.js:315:20)
+      at emitKeys (internal/readline/utils.js:345:14)
+      at emitKeys.next (<anonymous>)
+      at ReadStream.onData (readline.js:1144:36)
+      at ReadStream.emit (events.js:315:20)
+      at addChunk (internal/streams/readable.js:309:12)
 
 npm manifest: 
   {
-    "name": "tsooq",
-    "version": "1.0.0",
-    "main": "index.js",
+    "name": "jooq.ts",
+    "version": "0.1.3",
     "license": "MIT",
+    "main": "dist/main/index.js",
+    "typings": "dist/main/index.d.ts",
+    "homepage": "https://github.com/emcellsoft/jooq.ts",
+    "repository": "https://github.com/emcellsoft/jooq.ts",
     "scripts": {
       "start": "node dist/main.js",
       "watch": "tsc -w",
+      "lint": "eslint src/**/*.ts",
       "start:prod": "node dist/main",
       "codegen:graphql": "graphql-codegen --config codegen.yml",
-      "clean": "tsc --build --clean",
-      "build": "yarn clean && tsc -p tsconfig.build.json ",
-      "test": "jest",
+      "clean": "rimraf dist",
+      "build": "yarn clean && yarn lint --max-warnings 0 &&  tsc -p tsconfig.build.json ",
+      "test": "rimraf dist && yarn jest --runInBand",
       "migrate": "export $(cat .env | xargs) && yarn graphile-migrate"
     },
     "devDependencies": {
@@ -48,19 +52,30 @@ npm manifest:
       "@typescript-eslint/eslint-plugin": "^4.14.2",
       "@typescript-eslint/parser": "^4.14.2",
       "concurrently": "^5.3.0",
+      "dotenv": "^8.2.0",
       "eslint": "^7.19.0",
       "eslint-config-prettier": "^7.2.0",
       "eslint-plugin-prettier": "^3.3.1",
       "eslint-plugin-promise": "^4.3.1",
+      "graphile-migrate": "^1.0.2",
       "jest": "^26.6.3",
       "prettier": "^2.2.1",
+      "rimraf": "^3.0.2",
       "ts-jest": "^26.5.0",
       "type-fest": "^0.20.2",
       "typescript": "^4.1.3"
     },
+    "files": [
+      "build/main",
+      "build/module",
+      "!**/*.test.*",
+      "!**/*.json",
+      "CHANGELOG.md",
+      "LICENSE",
+      "README.md"
+    ],
+  
     "dependencies": {
-      "dotenv": "^8.2.0",
-      "graphile-migrate": "^1.0.2",
       "pg": "^8.5.1"
     }
   }
