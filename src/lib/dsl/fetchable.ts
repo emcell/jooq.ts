@@ -17,6 +17,7 @@ export interface Fetchable<T> {
     alias: string,
   ): TableWithFields<T, F>;
   toSql(options?: IdentifierOptions): string;
+  fetchMap<K extends keyof T>(key: K): Promise<Map<K, T>>;
 }
 
 export class FetchableData<T> implements Fetchable<T> {
@@ -53,6 +54,12 @@ export class FetchableData<T> implements Fetchable<T> {
       value: valueField,
     };
     return t as any;
+  }
+
+  async fetchMap<K extends keyof T>(key: K): Promise<Map<K, T>> {
+    const map = new Map<K, T>();
+    this.data.forEach((d: any) => map.set(d[key], d));
+    return map;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -6,7 +6,12 @@ import { Fetchable } from './dsl/fetchable';
 import { Field } from './dsl/field';
 import { OrderField } from './dsl/order';
 import { TableWithFields } from './table';
-import { FieldsForType, Subset } from './types';
+import { FieldsForType, Page, Subset } from './types';
+
+export interface FetchOptions {
+  page?: Page;
+  order?: OrderField<any>[];
+}
 
 export class CrudRepository<T, PK extends keyof T> {
   private readonly tableWithoutPK: TableWithFields<Except<T, PK>>;
@@ -21,8 +26,12 @@ export class CrudRepository<T, PK extends keyof T> {
   get primaryKeyField(): Field<T[PK]> {
     return this.tableDefinition.fields[this.primaryKey];
   }
-  public async findAll(): Promise<T[]> {
-    return this.create.selectFrom<T>(this.tableDefinition).fetch();
+  public async findAll(options?: FetchOptions): Promise<T[]> {
+    return this.create
+      .selectFrom<T>(this.tableDefinition)
+      .orderBy(options?.order)
+      .limit(options?.page)
+      .fetch();
   }
 
   private removeUnmatchingFieldsAndCopyIfNecessary<ObjectType>(
@@ -142,7 +151,7 @@ export class CrudRepository<T, PK extends keyof T> {
   }
   public async find(
     conditions: Condition[] | Condition,
-    orderBy?: OrderField<any>[],
+    options?: FetchOptions,
   ): Promise<T[]> {
     if (!Array.isArray(conditions)) {
       conditions = [conditions];
@@ -150,7 +159,8 @@ export class CrudRepository<T, PK extends keyof T> {
     return this.create
       .selectFrom(this.tableDefinition)
       .where(conditions)
-      .orderBy(orderBy || [])
+      .orderBy(options?.order)
+      .limit(options?.page)
       .fetch();
   }
 
@@ -158,12 +168,20 @@ export class CrudRepository<T, PK extends keyof T> {
     conditions: Condition[] | Condition,
     orderBy?: OrderField<any>[],
   ): Promise<T> {
-    return (await this.find(conditions, orderBy))[0];
+    return (await this.find(conditions, { order: orderBy }))[0];
   }
 
-  public async findByIdsIn(ids: Array<T[PK]> | Fetchable<T[PK]>): Promise<T[]> {
+  public async findByIdsIn(
+    ids: Array<T[PK]> | Fetchable<T[PK]>,
+    options?: FetchOptions,
+  ): Promise<T[]> {
     const where = this.primaryKeyField.in(ids);
-    return this.create.selectFrom(this.tableDefinition).where(where).fetch();
+    return this.create
+      .selectFrom(this.tableDefinition)
+      .where(where)
+      .orderBy(options?.order)
+      .limit(options?.page)
+      .fetch();
   }
   public selectByIdsIn(ids: Array<T[PK]> | Fetchable<T[PK]>): Fetchable<T> {
     const where = this.primaryKeyField.in(ids);
@@ -194,5 +212,58 @@ export class CrudRepository<T, PK extends keyof T> {
       .delete(this.tableDefinition.table)
       .where(conditions)
       .execute();
+  }
+
+  async fetchOneToOne<ReferenceKey extends keyof T>(
+    ids: T[ReferenceKey][],
+    referenceKey: ReferenceKey,
+    field: Field<T[ReferenceKey]>,
+    conditions: Condition | Condition[],
+  ): Promise<Array<T | undefined>> {
+    if (!Array.isArray(conditions)) {
+      conditions = [conditions];
+    }
+    conditions.push(field.in(ids));
+    const list = await this.find(conditions);
+    const map = new Map<T[ReferenceKey], T>();
+    list.forEach((item) => {
+      const referenceValue = item[referenceKey];
+      map.set(referenceValue, item);
+    });
+    return ids.map((id) => map.get(id));
+  }
+
+  public async fetchOneToMany<ReferenceKey extends keyof T>(
+    ids: T[ReferenceKey][],
+    referenceKey: ReferenceKey,
+    field: Field<T[ReferenceKey]>,
+    conditions: Condition | Condition[],
+  ): Promise<Array<T[]>> {
+    if (!Array.isArray(conditions)) {
+      conditions = [conditions];
+    }
+    conditions.push(field.in(ids));
+    const list = await this.find(conditions);
+    const map = new Map<T[ReferenceKey], T[]>();
+    list.forEach((item) => {
+      const referenceValue = item[referenceKey];
+      const mapItem = map.get(item[referenceKey]);
+      if (!mapItem) {
+        map.set(referenceValue, [item]);
+      } else {
+        mapItem.push(item);
+      }
+    });
+    return ids.map((id) => map.get(id) || []);
+  }
+
+  public async fetchMap(
+    conditions: Condition | Condition[],
+    options?: FetchOptions,
+  ): Promise<Map<T[PK], T>> {
+    const list = await this.find(conditions, options);
+    const map = new Map<T[PK], T>();
+    list.forEach((item) => map.set(item[this.primaryKey], item));
+    return map;
   }
 }

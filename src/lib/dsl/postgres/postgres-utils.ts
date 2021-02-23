@@ -164,6 +164,14 @@ export function PostgresFetchableImpl<T>(
         } as unknown) as TableWithFields<T, F>;
       }
     },
+    async fetchMap<K extends keyof T>(key: K): Promise<Map<K, T>> {
+      const map = new Map<K, T>();
+      const data = await this.fetch();
+      data.forEach((d: any) => {
+        map.set(d[key], d);
+      });
+      return map;
+    },
   };
 }
 

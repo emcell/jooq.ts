@@ -2,9 +2,12 @@ import dotenv from 'dotenv';
 import {
   ALONE,
   Alone,
+  Device,
+  DEVICE,
   LOCATION,
   Location,
   setupDb,
+  testDevices,
   testLocations,
   testSchema,
 } from '../test/test-utils';
@@ -18,6 +21,7 @@ describe('withDatabase', () => {
   setupDb(beforeEach, testSchema);
   let create: DSLContext;
   let locationRepository: CrudRepository<Location, 'id'>;
+  let deviceRepository: CrudRepository<Device, 'mac'>;
   beforeEach(async () => {
     create = DSL.context({
       type: 'postgres',
@@ -26,6 +30,7 @@ describe('withDatabase', () => {
       },
     });
     locationRepository = new CrudRepository(create, LOCATION, 'id');
+    deviceRepository = new CrudRepository(create, DEVICE, 'mac');
   });
   afterEach(async () => {
     await create.end();
@@ -106,5 +111,37 @@ describe('withDatabase', () => {
       expect(alone.id).not.toBeUndefined();
       expect(alone.id).toBeLessThan(100);
     }
+  });
+
+  it('fetchOneToMany', async () => {
+    await locationRepository.insertAll(testLocations);
+    await deviceRepository.insertAll(testDevices);
+    const locationsDevices = await await deviceRepository.fetchOneToMany(
+      [1, 2, 3],
+      'idLocation',
+      DEVICE.idLocation,
+      [],
+    );
+    expect(locationsDevices.length).toBe(3);
+    expect(locationsDevices[0].length).toBe(3);
+    expect(locationsDevices[1].length).toBe(4);
+    expect(locationsDevices[2].length).toBe(0);
+  });
+  it('fetchOneToOne', async () => {
+    await locationRepository.insertAll(testLocations);
+    await deviceRepository.insertAll(testDevices);
+    const locationsDevices = await await deviceRepository.fetchOneToOne(
+      [1, 2, 3],
+      'idLocation',
+      DEVICE.idLocation,
+      [],
+    );
+    expect(locationsDevices.length).toBe(3);
+    expect(locationsDevices[0]).toBeTruthy();
+    expect(locationsDevices[1]).toBeTruthy();
+    expect(locationsDevices[2]).toBeFalsy();
+
+    expect(locationsDevices[0]?.idLocation).toBe(1);
+    expect(locationsDevices[1]?.idLocation).toBe(2);
   });
 });

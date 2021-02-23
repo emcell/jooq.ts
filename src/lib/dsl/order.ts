@@ -11,7 +11,7 @@ export interface OrderField<T> {
 export interface OrderStep<T> extends LimitStep<T> {
   orderBy(field: Field<any>, direction?: 'asc' | 'desc'): OrderStep<T>;
   orderBy(fields: Field<any>[]): OrderStep<T>;
-  orderBy(fields: OrderField<any>[]): OrderStep<T>;
+  orderBy(fields?: OrderField<any>[]): OrderStep<T>;
 }
 
 export function orderFieldToString(

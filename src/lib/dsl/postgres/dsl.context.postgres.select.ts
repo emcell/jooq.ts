@@ -1,6 +1,6 @@
 import { Condition } from '../../condition';
 import { TableLike } from '../../table';
-import { TableFields } from '../../types';
+import { Page, TableFields } from '../../types';
 import { DSL } from '../dsl';
 import { Fetchable } from '../fetchable';
 import { Field, fieldsToStringOrAsterisk } from '../field';
@@ -32,10 +32,7 @@ export interface SelectContext extends PostgresContext {
   conditions: Condition[];
   orderFields: OrderField<any>[];
   groupFields: Field<any>[];
-  limit?: {
-    offset?: number;
-    count?: number;
-  };
+  limit?: Page;
 }
 
 function copyContext(context: SelectContext): SelectContext {
@@ -129,7 +126,19 @@ function LimitStepImpl<T>(
 ): LimitStep<T> {
   return {
     ...fetchable,
-    limit(countOrOffset: number, count?: number): Fetchable<T> {
+    limit(countOrOffset?: number | Page, count?: number): Fetchable<T> {
+      if (countOrOffset === undefined) {
+        return FetchableImpl({
+          ...copyContext(context),
+          limit: undefined,
+        });
+      }
+      if (typeof countOrOffset === 'object') {
+        return FetchableImpl({
+          ...copyContext(context),
+          limit: countOrOffset,
+        });
+      }
       if (count === undefined) {
         return FetchableImpl({
           ...copyContext(context),
@@ -174,10 +183,15 @@ function OrderStepImpl<T>(context: SelectContext): OrderStep<T> {
   return {
     ...LimitStepImpl(context),
     orderBy(
-      fields: Field<any> | Field<any>[] | OrderField<any>[],
+      fields?: Field<any> | Field<any>[] | OrderField<any>[],
       direction?: 'asc' | 'desc',
     ): OrderStep<T> {
       let finalFields: OrderField<any>[] = [];
+      if (!fields) {
+        return OrderStepImpl({
+          ...copyContext(context),
+        });
+      }
       if (!Array.isArray(fields)) {
         fields = [{ field: fields, direction }];
       }

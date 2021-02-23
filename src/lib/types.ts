@@ -28,3 +28,8 @@ export interface Assignment<T> {
 export type Subset<T, K extends keyof T> = {
   [P in K]: T[P];
 };
+
+export type Page = {
+  offset?: number;
+  count?: number;
+};
