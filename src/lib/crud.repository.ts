@@ -143,7 +143,7 @@ export class CrudRepository<T, PK extends keyof T> {
       .fetchOne();
   }
 
-  public async findOneByIdOrThrow(id: T[PK]): Promise<T | undefined> {
+  public async findOneByIdOrThrow(id: T[PK]): Promise<T> {
     return this.create
       .selectFrom(this.tableDefinition)
       .where(this.getWhereClauseForId(id))
