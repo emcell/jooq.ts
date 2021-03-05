@@ -44,7 +44,7 @@ describe('withDatabase', () => {
     expect(loadedLoactions).toStrictEqual(testLocations);
     let l = await locationRepository.findOneByIdOrThrow(testLocations[0].id);
     expect(l).toStrictEqual(testLocations[0]);
-    l = await locationRepository.findOneById(testLocations[0].id);
+    l = await locationRepository.findOneByIdOrThrow(testLocations[0].id);
     expect(l).toStrictEqual(testLocations[0]);
     await expect(locationRepository.findOneByIdOrThrow(1234)).rejects.toThrow();
     expect(await locationRepository.findOneById(12345)).toBeUndefined;
@@ -143,5 +143,17 @@ describe('withDatabase', () => {
 
     expect(locationsDevices[0]?.idLocation).toBe(1);
     expect(locationsDevices[1]?.idLocation).toBe(2);
+  });
+  it('insertOrUpdate', async () => {
+    const aloneRepository = new CrudRepository(create, ALONE, 'id');
+    const test = await aloneRepository.insertOrUpdate({
+      name: 'test',
+    });
+    expect(test).toBeTruthy();
+    expect(test.bool).toBeUndefined();
+    test.bool = true;
+    const test2 = await aloneRepository.insertOrUpdate(test);
+    expect(test2).toBeTruthy();
+    expect(test2.bool).toBe(true);
   });
 });
