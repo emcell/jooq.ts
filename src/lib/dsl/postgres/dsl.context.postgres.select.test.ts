@@ -364,5 +364,19 @@ describe('withDatabase', () => {
         .fetch();
       expect(locations.length).toBe(1);
     });
+    it('select in array multiple', async () => {
+      const locations = await create
+        .selectFrom(LOCATION)
+        .where(LOCATION.id.in([testLocations[0].id, testLocations[1].id]))
+        .fetch();
+      expect(locations.length).toBe(2);
+    });
+    it('select in array strign', async () => {
+      const locations = await create
+        .selectFrom(LOCATION)
+        .where(LOCATION.name.in([testLocations[0].name, testLocations[1].name]))
+        .fetch();
+      expect(locations.length).toBe(2);
+    });
   });
 });
