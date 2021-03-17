@@ -39,7 +39,7 @@ export class FetchableData<T> implements Fetchable<T> {
 
   dataToTable(): string {
     return this.data
-      .map((value) => `select ${mapFieldToDb(value)}`)
+      .map((value) => `select ${mapFieldToDb(value, undefined)}`)
       .join(' UNION ALL ');
   }
   asTable<
@@ -68,7 +68,9 @@ export class FetchableData<T> implements Fetchable<T> {
       return '()';
     }
     if (typeof this.data[0] === 'string') {
-      return `(${this.data.map((value) => mapFieldToDb(value)).join(',')})`;
+      return `(${this.data
+        .map((value) => mapFieldToDb(value, _options))
+        .join(',')})`;
     }
     return `${this.data.join(',')}`;
   }

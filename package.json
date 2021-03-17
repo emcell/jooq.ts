@@ -1,6 +1,6 @@
 {
   "name": "jooq.ts",
-  "version": "0.1.8",
+  "version": "0.1.10",
   "license": "MIT",
   "main": "dist/main/index.js",
   "typings": "dist/main/index.d.ts",
@@ -45,7 +45,6 @@
     "LICENSE",
     "README.md"
   ],
-
   "dependencies": {
     "pg": "^8.5.1"
   }

@@ -5,7 +5,7 @@ import {
   MapValueToFieldOrValue,
   TableFields,
 } from '../../types';
-import { identifierToSql } from '../../utils';
+import { IdentifierOptions, identifierToSql } from '../../utils';
 import { DSL } from '../dsl';
 import { AbstractExecutableImpl, Executable } from '../executable';
 import { Fetchable } from '../fetchable';
@@ -67,7 +67,11 @@ function copyContext(context: InsertContext): InsertContext {
   };
 }
 
-function objectToValues(object: any, fields: InsertContext['fields']): string {
+function objectToValues(
+  object: any,
+  fields: InsertContext['fields'],
+  options: IdentifierOptions | undefined,
+): string {
   const sqlValues: string[] = [];
   for (const key in fields) {
     const field = fields[key];
@@ -79,7 +83,7 @@ function objectToValues(object: any, fields: InsertContext['fields']): string {
         if (field.converter) {
           value = field.converter.toDb(value);
         } else {
-          sqlValues.push(mapFieldToDb(value));
+          sqlValues.push(mapFieldToDb(value, options));
         }
       }
     }
@@ -97,7 +101,9 @@ function toSql(context: InsertContext): string {
     query.push(
       'VALUES',
       context.values
-        .map((object) => objectToValues(object, context.fields))
+        .map((object) =>
+          objectToValues(object, context.fields, context.options),
+        )
         .join(','),
     );
   } else {

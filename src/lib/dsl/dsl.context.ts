@@ -3,6 +3,7 @@ import {
   FieldOrValueMap,
   FieldsForType,
   MapTableFieldsToValue,
+  MapValueToFieldOrValue,
   Subset,
   TableFields,
 } from '../types';
@@ -30,14 +31,17 @@ export interface DSLContext {
   insertInto<T>(
     table: Table,
     fields: FieldsForType<T>,
-    objects: T[],
+    objects: (T | MapValueToFieldOrValue<T>)[],
   ): InsertStep<T>;
   insertInto<T>(
     table: Table,
     fields: FieldsForType<T>,
     query: Fetchable<T>,
   ): InsertStep<T>;
-  insertInto<T>(table: TableWithFields<T>, values: T[]): InsertStep<T>;
+  insertInto<T>(
+    table: TableWithFields<T>,
+    values: (T | MapValueToFieldOrValue<T>)[],
+  ): InsertStep<T>;
   insertInto<T>(table: TableWithFields<T>, query: Fetchable<T>): InsertStep<T>;
 
   update<T>(

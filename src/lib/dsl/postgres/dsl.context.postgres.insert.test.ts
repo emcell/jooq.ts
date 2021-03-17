@@ -202,5 +202,15 @@ describe('withDatabase', () => {
         expect(list[i].bool).toBe(testAlone[i].bool);
       }
     });
+    it('with fields as values', async () => {
+      await create
+        .insertInto<Alone>(ALONE, [
+          {
+            ...testAlone[0],
+            date: DSL.now(),
+          },
+        ])
+        .execute();
+    });
   });
 });

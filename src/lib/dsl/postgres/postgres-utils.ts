@@ -175,7 +175,10 @@ export function PostgresFetchableImpl<T>(
   };
 }
 
-export function mapFieldToDb(value: unknown): string {
+export function mapFieldToDb(
+  value: unknown,
+  options: IdentifierOptions | undefined,
+): string {
   if (typeof value === 'number') {
     return '' + value;
   } else if (value instanceof Date) {
@@ -184,6 +187,8 @@ export function mapFieldToDb(value: unknown): string {
     return 'null';
   } else if (value === undefined) {
     return 'null';
+  } else if (value instanceof Field) {
+    return value.toSql(options);
   }
   return `'${value}'`;
 }
@@ -244,7 +249,10 @@ export function fieldOrValueMapToSql<T>(
           );
         } else {
           sql.push(
-            `${fieldToInsertField(field, options)}=${mapFieldToDb(value)}`,
+            `${fieldToInsertField(field, options)}=${mapFieldToDb(
+              value,
+              options,
+            )}`,
           );
         }
       }

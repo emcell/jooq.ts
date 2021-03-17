@@ -125,4 +125,8 @@ export class DSL {
     }
     return new FieldExcluded();
   }
+
+  static now(): Field<Date> {
+    return new FieldRaw<Date>(`now()`);
+  }
 }
