@@ -1,3 +1,4 @@
+import { DbTypes } from './dsl';
 import { Field } from './dsl/field';
 
 export interface TableFields {
@@ -5,7 +6,7 @@ export interface TableFields {
 }
 
 export type FieldsForType<T> = {
-  [P in keyof T]-?: P extends keyof T ? Field<T[P]> : never;
+  [P in keyof T]-?: P extends keyof T ? Field<T[P], DbTypes> : never;
 };
 
 export type MapTableFieldsToValue<T extends TableFields> = {

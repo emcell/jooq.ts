@@ -1,6 +1,6 @@
 import { Except, SetOptional } from 'type-fest';
 import { Condition } from './condition';
-import { DSL } from './dsl/dsl';
+import { DbTypes, DSL } from './dsl/dsl';
 import { DSLContext } from './dsl/dsl.context';
 import { Fetchable } from './dsl/fetchable';
 import { Field } from './dsl/field';
@@ -23,7 +23,7 @@ export class CrudRepository<T, PK extends keyof T> {
     this.tableWithoutPK = DSL.withoutFields(tableDefinition, primaryKey);
   }
 
-  get primaryKeyField(): Field<T[PK]> {
+  get primaryKeyField(): Field<T[PK], DbTypes> {
     return this.tableDefinition.fields[this.primaryKey];
   }
   public async findAll(options?: FetchOptions): Promise<T[]> {
