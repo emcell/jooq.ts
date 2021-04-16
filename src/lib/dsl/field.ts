@@ -1,24 +1,22 @@
-import { ToSql } from '../helpers';
-import { Table } from '../table';
-import { IdentifierOptions, identifierToSql } from '../utils';
 import {
   Condition,
   ConditionCompare,
   ConditionRightQuery,
   ConditionUnaryOperator,
 } from '../condition';
-import { Fetchable, FetchableData } from '../dsl/fetchable';
-import { Converter, FieldTools } from './field-tools';
 import { DbTypes } from '../dsl/dsl';
+import { Fetchable, FetchableData } from '../dsl/fetchable';
+import { ToSql } from '../helpers';
+import { Table } from '../table';
 import { TableFields } from '../types';
+import { IdentifierOptions, identifierToSql } from '../utils';
+import { Converter, FieldTools } from './field-tools';
 
 export type FieldOptions = IdentifierOptions;
 
 // noinspection JSUnusedGlobalSymbols
-export abstract class Field<
-  T,
-  DbType extends DbTypes = T extends DbTypes ? T : DbTypes
-> implements ToSql<FieldOptions> {
+export abstract class Field<T, DbType extends DbTypes = DbTypes>
+  implements ToSql<FieldOptions> {
   protected constructor(public converter?: Converter<DbType, T>) {}
   abstract getName(options?: FieldOptions): string;
   abstract toSql(options?: FieldOptions): string;
