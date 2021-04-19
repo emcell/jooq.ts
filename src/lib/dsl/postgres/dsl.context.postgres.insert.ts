@@ -76,15 +76,14 @@ function objectToValues(
   for (const key in fields) {
     const field = fields[key];
     if (Object.prototype.hasOwnProperty.call(fields, key)) {
-      const value = object[key];
+      let value = object[key];
       if (value === null || value === undefined) {
         sqlValues.push('null');
       } else {
         if (field.converter) {
-          sqlValues.push(mapFieldToDb(field.converter.toDb(value), options));
-        } else {
-          sqlValues.push(mapFieldToDb(value, options));
+          value = field.converter.toDb(value);
         }
+        sqlValues.push(mapFieldToDb(value, options));
       }
     }
   }
