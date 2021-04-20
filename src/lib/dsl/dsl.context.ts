@@ -7,6 +7,7 @@ import {
   Subset,
   TableFields,
 } from '../types';
+import { IdentifierOptions } from '../utils';
 import { DeleteStep } from './delete';
 import { Fetchable } from './fetchable';
 import { Field } from './field';
@@ -15,6 +16,7 @@ import { SelectFromStep, SelectStep } from './select';
 import { UpdateStep } from './update';
 
 export interface DSLContext {
+  options: IdentifierOptions;
   select<T, F extends Field<T>>(
     _field: F,
   ): SelectStep<F extends Field<infer U> ? U : never>;

@@ -19,9 +19,9 @@ export class FieldTools {
   public static valueToField<
     T,
     DbType extends DbTypes = T extends DbTypes ? T : DbTypes
-  >(value: T, toString?: (value: T) => string): Field<T, DbType> {
+  >(value: T, converter?: Converter<DbType, T>): Field<T, DbType> {
     return new FieldRaw<T, DbType>(
-      toString ? toString(value) : `${convertValueToRawSql(value)}`,
+      `${convertValueToRawSql(converter ? converter.toDb(value) : value)}`,
     );
   }
 }

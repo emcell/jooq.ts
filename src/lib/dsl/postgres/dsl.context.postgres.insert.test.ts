@@ -1,8 +1,13 @@
 import dotenv from 'dotenv';
 import { Client } from 'pg';
-import { Except } from 'type-fest';
-import { ALONE, Alone, setupDb, testSchema } from '../../../test/test-utils';
-import { Table } from '../../table';
+import {
+  ALONE,
+  Alone,
+  AloneWithConvert,
+  ALONE_WITH_CONVERT,
+  setupDb,
+  testSchema,
+} from '../../../test/test-utils';
 import { DSL } from '../dsl';
 import { DSLContext } from '../dsl.context';
 
@@ -18,29 +23,6 @@ const testAlone: Alone[] = [
     name: 'alone_2',
   },
 ];
-type AloneWithConvert = Except<Alone, 'name'> & { name: number };
-export const ALONE_WITH_CONVERT = DSL.tableDefinition<AloneWithConvert>(
-  new Table('alone'),
-  (table) => {
-    return {
-      id: table.field('id'),
-      name: DSL.tableField<AloneWithConvert, number, string>(table, 'name', {
-        fromDb: (value: string): number => {
-          if (value == 'a') {
-            return 1;
-          }
-          return 2;
-        },
-        toDb: (value: number): string => {
-          if (value === 1) return 'a';
-          return 'b';
-        },
-      }),
-      date: table.field('date'),
-      bool: table.field('bool'),
-    };
-  },
-);
 
 dotenv.config();
 

@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import {
+  ALONE_WITH_CONVERT,
   DEVICE,
   LOCATION,
   setupDb,
@@ -377,6 +378,13 @@ describe('withDatabase', () => {
         .where(LOCATION.name.in([testLocations[0].name, testLocations[1].name]))
         .fetch();
       expect(locations.length).toBe(2);
+    });
+    it('select in array strign', async () => {
+      const sql = create
+        .selectFrom(ALONE_WITH_CONVERT)
+        .where(ALONE_WITH_CONVERT.name.eq(1))
+        .toSql(create.options);
+      expect(sql).toContain(`"name" = 'a'`);
     });
   });
 });

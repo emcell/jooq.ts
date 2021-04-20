@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import { reset } from 'graphile-migrate';
 import { Client } from 'pg';
+import { Except } from 'type-fest';
 import { DSL } from '../lib/dsl/dsl';
 import { Table } from '../lib/table';
 
@@ -20,6 +21,30 @@ export const ALONE = DSL.tableDefinition<Alone>(
       date: table.field('date'),
       bool: table.field('bool'),
     });
+  },
+);
+
+export type AloneWithConvert = Except<Alone, 'name'> & { name: number };
+export const ALONE_WITH_CONVERT = DSL.tableDefinition<AloneWithConvert>(
+  new Table('alone'),
+  (table) => {
+    return {
+      id: table.field('id'),
+      name: DSL.tableField<AloneWithConvert, number, string>(table, 'name', {
+        fromDb: (value: string): number => {
+          if (value == 'a') {
+            return 1;
+          }
+          return 2;
+        },
+        toDb: (value: number): string => {
+          if (value === 1) return 'a';
+          return 'b';
+        },
+      }),
+      date: table.field('date'),
+      bool: table.field('bool'),
+    };
   },
 );
 
