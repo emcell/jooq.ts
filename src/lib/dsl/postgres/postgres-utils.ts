@@ -182,7 +182,7 @@ export function mapFieldToDb(
   if (typeof value === 'number') {
     return '' + value;
   } else if (value instanceof Date) {
-    return `'${value.toUTCString()}'`;
+    return `'${value.toISOString()}'`;
   } else if (value === null) {
     return 'null';
   } else if (value === undefined) {
@@ -250,7 +250,7 @@ export function fieldOrValueMapToSql<T>(
         } else {
           sql.push(
             `${fieldToInsertField(field, options)}=${mapFieldToDb(
-              value,
+              field.converter ? field.converter.toDb(value as any) : value,
               options,
             )}`,
           );

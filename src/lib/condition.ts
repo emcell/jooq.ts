@@ -32,7 +32,7 @@ export class ConditionCompare<T> extends Condition {
     const rValue: Field<T> =
       this.right instanceof Field
         ? this.right
-        : FieldTools.valueToField(this.right, this.left.converter);
+        : FieldTools.valueToField(this.right, options, this.left.converter);
 
     return `${this.left.toSql(options)} ${this.operator} ${rValue.toSql(
       options,

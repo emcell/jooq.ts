@@ -321,7 +321,7 @@ export class Expression<
 
   fieldToSql(field: Field<T, DbType> | T, options?: FieldOptions): string {
     if (!(field instanceof Field)) {
-      field = FieldTools.valueToField(field);
+      field = FieldTools.valueToField(field, options);
     }
     return field.toSql(options);
   }

@@ -69,7 +69,7 @@ export class CrudRepository<T, PK extends keyof T> {
     );
     return (this.create
       .insertInto(this.tableWithoutPK, convertedObjects)
-      .returning(this.tableWithoutPK.fields)
+      .returning(this.tableDefinition.fields)
       .fetch() as unknown) as T[];
   }
 

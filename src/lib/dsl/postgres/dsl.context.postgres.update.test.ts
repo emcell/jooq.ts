@@ -1,6 +1,6 @@
 import { Client } from 'pg';
-
 import {
+  ALONE_WITH_CONVERT,
   Device,
   DEVICE,
   LOCATION,
@@ -121,5 +121,13 @@ describe('update', () => {
       .fetch();
     expect(list.length).toBe(1);
     expect(list[0].test).toBeUndefined();
+  });
+  it('udpates with mapper', async () => {
+    const sql = create
+      .update(ALONE_WITH_CONVERT, {
+        name: 1,
+      })
+      .toSql();
+    expect(sql).toContain(`"name"='a'`);
   });
 });

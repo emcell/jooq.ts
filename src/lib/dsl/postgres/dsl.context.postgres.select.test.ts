@@ -386,5 +386,12 @@ describe('withDatabase', () => {
         .toSql(create.options);
       expect(sql).toContain(`"name" = 'a'`);
     });
+    it('should select with date in where clause', async () => {
+      const result = await create
+        .selectFrom(LOCATION)
+        .where(LOCATION.start.lessOrEqual(new Date()))
+        .fetch();
+      expect(result.length).toBeGreaterThan(0);
+    });
   });
 });
