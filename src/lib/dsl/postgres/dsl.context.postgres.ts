@@ -211,4 +211,8 @@ export class DslContextPostgres implements DSLContext {
   async end(): Promise<void> {
     await this.runtime.pool.end();
   }
+
+  async executeRaw(sql: string): Promise<any> {
+    return await this.runtime.pool.query(sql);
+  }
 }

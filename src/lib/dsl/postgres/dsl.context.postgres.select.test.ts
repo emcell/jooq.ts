@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import {
   ALONE_WITH_CONVERT,
   DEVICE,
+  INFORMATION_SCHEMA_VIEWS,
   LOCATION,
   setupDb,
   setupWithData,
@@ -400,6 +401,17 @@ describe('withDatabase', () => {
         .where(LOCATION.start.lessOrEqual(new Date()))
         .fetch();
       expect(result.length).toBeGreaterThan(0);
+    });
+    it('should select raw', async () => {
+      const result = await create.executeRaw('select * from location');
+      expect(result).toBeTruthy();
+      expect(result.rows).toBeTruthy();
+      expect(Array.isArray(result.rows)).toBeTruthy();
+    });
+    it('should select With TableRaw', async () => {
+      const result = await create.selectFrom(INFORMATION_SCHEMA_VIEWS).fetch();
+      expect(result).toBeTruthy();
+      expect(Array.isArray(result)).toBeTruthy();
     });
   });
 });

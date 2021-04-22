@@ -7,7 +7,7 @@ import {
 import { DbTypes } from '../dsl/dsl';
 import { Fetchable, FetchableData } from '../dsl/fetchable';
 import { ToSql } from '../helpers';
-import { Table } from '../table';
+import { TableLike } from '../table';
 import { TableFields } from '../types';
 import { IdentifierOptions, identifierToSql } from '../utils';
 import { Converter, FieldTools } from './field-tools';
@@ -226,7 +226,7 @@ export class FieldTable<
   DbType extends DbTypes = T extends DbTypes ? T : DbTypes
 > extends FieldAbstract<T, DbType> {
   constructor(
-    public table: Table,
+    public table: TableLike,
     public field: string,
     public converter?: Converter<DbType, T>,
   ) {

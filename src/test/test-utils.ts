@@ -2,8 +2,9 @@ import dotenv from 'dotenv';
 import { reset } from 'graphile-migrate';
 import { Client } from 'pg';
 import { Except } from 'type-fest';
+import { FieldTable } from '..';
 import { DSL } from '../lib/dsl/dsl';
-import { Table } from '../lib/table';
+import { Table, TableRaw } from '../lib/table';
 
 export interface Alone {
   id: number;
@@ -11,6 +12,25 @@ export interface Alone {
   date?: Date;
   bool?: boolean;
 }
+
+interface InformationSchemaViews {
+  tableCatalog: string;
+  tableSchema: string;
+  tableName: string;
+  viewDefinition: string;
+}
+
+export const INFORMATION_SCHEMA_VIEWS = DSL.tableDefinition<InformationSchemaViews>(
+  new TableRaw('information_schema.views'),
+  (table) => {
+    return {
+      tableCatalog: new FieldTable<string>(table, 'table_catalog'),
+      tableSchema: new FieldTable<string>(table, 'table_schema'),
+      tableName: new FieldTable<string>(table, 'table_name'),
+      viewDefinition: new FieldTable<string>(table, 'view_definition'),
+    };
+  },
+);
 
 export const ALONE = DSL.tableDefinition<Alone>(
   new Table('alone'),

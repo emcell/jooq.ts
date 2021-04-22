@@ -13,7 +13,7 @@ export abstract class TableLike implements ToSql {
 }
 
 export class Table<T = any> extends TableLike {
-  constructor(private table: string) {
+  constructor(protected table: string) {
     super();
   }
 
@@ -31,6 +31,16 @@ export class Table<T = any> extends TableLike {
       : [Converter<DbType, T[K]>]
   ): Field<T[K], DbType> {
     return new FieldTable<T[K], DbType>(this, field as string, converter[0]);
+  }
+}
+
+export class TableRaw<T = any> extends Table<T> {
+  constructor(table: string) {
+    super(table);
+  }
+
+  toSql(): string {
+    return this.table;
   }
 }
 

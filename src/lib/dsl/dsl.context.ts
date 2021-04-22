@@ -59,4 +59,6 @@ export interface DSLContext {
 
   delete(table: TableLike): DeleteStep;
   end(): Promise<void>;
+
+  executeRaw(sql: string): Promise<any>;
 }
