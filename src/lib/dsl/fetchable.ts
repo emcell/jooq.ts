@@ -3,6 +3,7 @@ import { FieldsForType, TableFields } from '../types';
 import { IdentifierOptions } from '../utils';
 import { DbTypes } from './dsl';
 import { Field, FieldTable } from './field';
+import { Converter } from './field-tools';
 import { mapFieldToDb } from './postgres/postgres-utils';
 
 export interface Fetchable<T> {
@@ -21,7 +22,7 @@ export interface Fetchable<T> {
 }
 
 export class FetchableData<T> implements Fetchable<T> {
-  constructor(private data: T[]) {}
+  constructor(private data: T[], private converter?: Converter<DbTypes, T>) {}
   async fetch(): Promise<T[]> {
     return this.data;
   }
@@ -39,7 +40,13 @@ export class FetchableData<T> implements Fetchable<T> {
 
   dataToTable(): string {
     return this.data
-      .map((value) => `select ${mapFieldToDb(value, undefined)}`)
+      .map(
+        (value) =>
+          `select ${mapFieldToDb(
+            this.converter ? this.converter.toDb(value) : value,
+            undefined,
+          )}`,
+      )
       .join(' UNION ALL ');
   }
   asTable<
@@ -67,11 +74,13 @@ export class FetchableData<T> implements Fetchable<T> {
     if (this.data.length === 0) {
       return '()';
     }
-    if (typeof this.data[0] === 'string') {
-      return `${this.data
-        .map((value) => mapFieldToDb(value, _options))
-        .join(',')}`;
-    }
-    return `${this.data.join(',')}`;
+    return `${this.data
+      .map((value) =>
+        mapFieldToDb(
+          this.converter ? this.converter.toDb(value) : value,
+          _options,
+        ),
+      )
+      .join(',')}`;
   }
 }

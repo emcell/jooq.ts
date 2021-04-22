@@ -386,6 +386,14 @@ describe('withDatabase', () => {
         .toSql(create.options);
       expect(sql).toContain(`"name" = 'a'`);
     });
+    it('select where in map field', async () => {
+      const sql = create
+        .selectFrom(ALONE_WITH_CONVERT)
+        .where(ALONE_WITH_CONVERT.name.in([0, 1]))
+        .toSql(create.options);
+      expect(sql).toContain(`'b'`);
+      expect(sql).toContain(`'a'`);
+    });
     it('should select with date in where clause', async () => {
       const result = await create
         .selectFrom(LOCATION)

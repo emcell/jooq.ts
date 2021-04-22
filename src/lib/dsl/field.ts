@@ -112,7 +112,7 @@ export abstract class FieldAbstract<
   in(_select: Fetchable<T>): Condition;
   in(selectOrValues: Fetchable<T> | T[]): Condition {
     if (Array.isArray(selectOrValues)) {
-      selectOrValues = new FetchableData<T>(selectOrValues);
+      selectOrValues = new FetchableData<T>(selectOrValues, this.converter);
     }
     return new ConditionRightQuery(this, 'in', selectOrValues);
   }
@@ -120,7 +120,7 @@ export abstract class FieldAbstract<
   notIn(_select: Fetchable<T>): Condition;
   notIn(selectOrValues: Fetchable<T> | T[]): Condition {
     if (Array.isArray(selectOrValues)) {
-      selectOrValues = new FetchableData<T>(selectOrValues);
+      selectOrValues = new FetchableData<T>(selectOrValues, this.converter);
     }
     return new ConditionRightQuery(this, 'not in', selectOrValues);
   }
