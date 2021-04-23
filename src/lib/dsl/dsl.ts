@@ -1,10 +1,5 @@
 import { Except } from 'type-fest';
-import {
-  Condition,
-  ConditionAnd,
-  ConditionOr,
-  objectToConditions,
-} from '../condition';
+import { Condition, ConditionAnd, ConditionOr } from '../condition';
 import { makeTableDefinition, Table, TableWithFields } from '../table';
 import { FieldsForType, TableFields } from '../types';
 import { DSLContext } from './dsl.context';
@@ -46,34 +41,12 @@ export class DSL {
     return new FieldRaw('count(*)');
   }
 
-  static or(_conditions: Condition[]): Condition;
-  static or<T>(object: T, operator?: string): Condition;
-  static or<T>(
-    objectOrConditions: T | Condition[],
-    operator?: string,
-  ): Condition {
-    if (!Array.isArray(objectOrConditions)) {
-      objectOrConditions = objectToConditions(
-        objectOrConditions,
-        operator || '=',
-      );
-    }
-    return new ConditionOr(objectOrConditions);
+  static or(conditions: Condition[]): Condition {
+    return new ConditionOr(conditions);
   }
 
-  static and(_conditions: Condition[]): Condition;
-  static and<T>(object: T, operator?: string): Condition;
-  static and<T>(
-    objectOrConditions: T | Condition[],
-    operator?: string,
-  ): Condition {
-    if (!Array.isArray(objectOrConditions)) {
-      objectOrConditions = objectToConditions(
-        objectOrConditions,
-        operator || '=',
-      );
-    }
-    return new ConditionAnd(objectOrConditions);
+  static and(conditions: Condition[]): Condition {
+    return new ConditionAnd(conditions);
   }
 
   static field<T, DbType extends DbTypes = T extends DbTypes ? T : DbTypes>(

@@ -233,6 +233,10 @@ export class CrudRepository<T, PK extends keyof T> {
       .execute();
   }
 
+  public async deleteAll(): Promise<number> {
+    return await this.create.delete(this.tableDefinition.table).execute();
+  }
+
   async fetchOneToOne<ReferenceKey extends keyof T>(
     ids: T[ReferenceKey][],
     referenceKey: ReferenceKey,
