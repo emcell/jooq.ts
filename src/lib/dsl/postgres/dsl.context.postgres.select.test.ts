@@ -10,6 +10,7 @@ import {
 } from '../../../test/test-utils';
 import { DSL } from '../dsl';
 import { DSLContext } from '../dsl.context';
+import { FieldGroup } from '../field';
 
 dotenv.config();
 
@@ -412,6 +413,19 @@ describe('withDatabase', () => {
       const result = await create.selectFrom(INFORMATION_SCHEMA_VIEWS).fetch();
       expect(result).toBeTruthy();
       expect(Array.isArray(result)).toBeTruthy();
+    });
+    it('should select FieldGroup', async () => {
+      const fieldGroup = new FieldGroup([
+        DSL.field<number>('n'),
+        DSL.field<string>('s'),
+      ]);
+      const sql = fieldGroup
+        .in([
+          [0, 'a'],
+          [1, 'b'],
+        ])
+        .toSql();
+      expect(sql).toContain("(0,'a')");
     });
   });
 });

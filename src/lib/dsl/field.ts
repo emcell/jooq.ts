@@ -204,7 +204,7 @@ export abstract class FieldAbstract<
   }
 }
 
-export class FieldRaw<
+export class FieldName<
   T,
   DbType extends DbTypes = T extends DbTypes ? T : DbTypes
 > extends FieldAbstract<T, DbType> {
@@ -214,6 +214,23 @@ export class FieldRaw<
   // eslint-disable-next-line
   toSql(_options?: FieldOptions): string {
     return this.field;
+  }
+
+  getName(options?: FieldOptions): string {
+    return this.toSql(options);
+  }
+}
+
+export class FieldRaw<
+  T,
+  DbType extends DbTypes = T extends DbTypes ? T : DbTypes
+> extends FieldAbstract<T, DbType> {
+  constructor(private field: string, converter?: Converter<DbType, T>) {
+    super(converter);
+  }
+  // eslint-disable-next-line
+  toSql(options?: FieldOptions): string {
+    return identifierToSql(this.field, options);
   }
 
   getName(options?: FieldOptions): string {
@@ -265,6 +282,21 @@ export class FieldAs<
 
   as(alias: string): Field<T, DbType> {
     return new FieldAs<T, DbType>(this.field, alias, this.converter);
+  }
+}
+
+export class FieldGroup<T extends Field<unknown>[]> extends FieldAbstract<
+  [...(T extends Field<infer U>[] ? U[] : never)]
+> {
+  constructor(public fields: [...T]) {
+    super();
+  }
+  toSql(options?: FieldOptions): string {
+    return `(${this.fields.map((f) => f.toSql(options)).join(',')})`;
+  }
+
+  getName(options?: FieldOptions): string {
+    return this.toSql(options);
   }
 }
 

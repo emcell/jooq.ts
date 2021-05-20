@@ -8,6 +8,7 @@ import {
   setupDb,
   testSchema,
 } from '../../../test/test-utils';
+import { UniqueConstraintException } from '../../exceptions';
 import { DSL } from '../dsl';
 import { DSLContext } from '../dsl.context';
 
@@ -230,6 +231,32 @@ describe('withDatabase', () => {
           },
         ])
         .execute();
+    });
+    it('throws on conflict UniqueConstraintException', async () => {
+      await create
+        .insertInto<Alone>(ALONE, [
+          {
+            id: 1,
+            name: '',
+            bool: true,
+            date: DSL.now(),
+          },
+        ])
+        .execute();
+      try {
+        await create
+          .insertInto<Alone>(ALONE, [
+            {
+              id: 1,
+              name: 'a',
+              bool: false,
+              date: DSL.now(),
+            },
+          ])
+          .execute();
+      } catch (e) {
+        expect(e instanceof UniqueConstraintException).toBe(true);
+      }
     });
   });
 });

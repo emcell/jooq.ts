@@ -3,7 +3,7 @@ import { Condition, ConditionAnd, ConditionOr } from '../condition';
 import { makeTableDefinition, Table, TableWithFields } from '../table';
 import { FieldsForType, TableFields } from '../types';
 import { DSLContext } from './dsl.context';
-import { Field, FieldExcluded, FieldRaw, FieldTable } from './field';
+import { Field, FieldExcluded, FieldName, FieldRaw, FieldTable } from './field';
 import { Converter } from './field-tools';
 import {
   DslContextPostgres,
@@ -50,6 +50,12 @@ export class DSL {
   }
 
   static field<T, DbType extends DbTypes = T extends DbTypes ? T : DbTypes>(
+    field: string,
+    converter?: Converter<DbType, T>,
+  ): Field<T, DbType> {
+    return new FieldName<T, DbType>(field, converter);
+  }
+  static fieldRaw<T, DbType extends DbTypes = T extends DbTypes ? T : DbTypes>(
     field: string,
     converter?: Converter<DbType, T>,
   ): Field<T, DbType> {

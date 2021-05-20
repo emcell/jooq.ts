@@ -1,4 +1,4 @@
-import { SqlSyntaxException } from '../exceptions';
+import { convertException } from '../exceptions';
 import { PostgresContext } from './postgres/dsl.context.postgres';
 
 export interface Executable {
@@ -17,7 +17,7 @@ export function AbstractExecutableImpl(
         const result = await context.runtime.pool.query(sql);
         return result.rowCount;
       } catch (e) {
-        throw new SqlSyntaxException(sql, e);
+        throw convertException(e, sql);
       }
     },
     toSql,

@@ -1,6 +1,6 @@
 import { FieldDef, Pool, QueryArrayResult } from 'pg';
 import { Condition, objectToConditions } from '../../condition';
-import { SqlSyntaxException } from '../../exceptions';
+import { convertException } from '../../exceptions';
 import { Table, TableAliased, TableWithFields } from '../../table';
 import { FieldOrValueMap, FieldsForType, TableFields } from '../../types';
 import { IdentifierOptions, identifierToSql } from '../../utils';
@@ -74,7 +74,7 @@ export async function queryObject(pool: Pool, query: string): Promise<any[]> {
     const result = await pool.query(query);
     return result.rows;
   } catch (e) {
-    throw new SqlSyntaxException(query, e);
+    throw convertException(e, query);
   }
 }
 
@@ -89,7 +89,7 @@ export async function queryArray(
     });
     return result;
   } catch (e) {
-    throw new SqlSyntaxException(query, e);
+    throw convertException(e, query);
   }
 }
 
@@ -189,6 +189,10 @@ export function mapFieldToDb(
     return 'null';
   } else if (value instanceof Field) {
     return value.toSql(options);
+  } else if (Array.isArray(value)) {
+    return `(${value
+      .map((nestedValue) => mapFieldToDb(nestedValue, options))
+      .join(',')})`;
   }
   return `'${value}'`;
 }
