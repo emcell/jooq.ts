@@ -26,7 +26,7 @@ import {
 } from './postgres-utils';
 
 export interface InsertContextOnConflict {
-  id: string;
+  id?: string;
   do: 'nothing' | 'update';
   fields?: FieldOrValueMap<any>;
 }
@@ -109,12 +109,12 @@ function toSql(context: InsertContext): string {
     query.push(`(${context.values.toSql(context.options)})`);
   }
   if (context.onConflict) {
-    query.push(
-      `ON CONFLICT (${identifierToSql(
-        context.onConflict.id,
-        context.options,
-      )})`,
-    );
+    query.push(`ON CONFLICT`);
+    if (context.onConflict.id !== undefined) {
+      query.push(
+        `(${identifierToSql(context.onConflict.id, context.options)})`,
+      );
+    }
     if (context.onConflict.do === 'nothing') {
       query.push('DO NOTHING');
     } else {
@@ -246,7 +246,7 @@ export function InsertStepImpl<T>(context: InsertContext): InsertStep<T> {
   return {
     ...UpdateExecutableImpl(context),
     ...UpdateReturningStepImpl(context),
-    onConflict(name: keyof T | string): OnConflictStep<T> {
+    onConflict(name?: keyof T | string): OnConflictStep<T> {
       return OnConflictStepImpl<T>({
         ...copyContext(context),
         onConflict: {

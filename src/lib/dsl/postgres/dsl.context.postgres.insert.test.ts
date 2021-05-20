@@ -109,6 +109,19 @@ describe('withDatabase', () => {
         expect(list[i].name).toBe(testAlone[i].name);
       }
     });
+    it('on conflict do nothing with no parameter given', async () => {
+      const alone = testAlone[0];
+      await create.insertInto(ALONE, [testAlone[0]]).execute();
+      await create
+        .insertInto(ALONE, [{ ...testAlone[1], id: testAlone[0].id }])
+        .onConflict()
+        .doNothing()
+        .execute();
+      const list: Alone[] = (await client.query('select * from alone'))
+        .rows as Alone[];
+      expect(list.length).toBe(1);
+      expect(list[0]).toStrictEqual(alone);
+    });
     it('on conflict do nothing', async () => {
       const alone = testAlone[0];
       await create.insertInto(ALONE, [testAlone[0]]).execute();
