@@ -204,7 +204,7 @@ export abstract class FieldAbstract<
   }
 }
 
-export class FieldName<
+export class FieldRaw<
   T,
   DbType extends DbTypes = T extends DbTypes ? T : DbTypes
 > extends FieldAbstract<T, DbType> {
@@ -221,7 +221,7 @@ export class FieldName<
   }
 }
 
-export class FieldRaw<
+export class FieldName<
   T,
   DbType extends DbTypes = T extends DbTypes ? T : DbTypes
 > extends FieldAbstract<T, DbType> {
