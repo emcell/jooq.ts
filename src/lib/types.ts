@@ -9,6 +9,9 @@ export type FieldsForType<T> = {
   [P in keyof T]-?: P extends keyof T ? Field<T[P], DbTypes> : never;
 };
 
+export type FieldToValue<T> = T extends Field<infer U> ? U : never;
+export type FieldArrayToValue<T> = T extends Field<infer U>[] ? U[] : never;
+
 export type MapTableFieldsToValue<T extends TableFields> = {
   [P in keyof T]: T[P] extends Field<infer U> ? U : never;
 };

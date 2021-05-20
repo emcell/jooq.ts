@@ -8,7 +8,7 @@ import { DbTypes } from '../dsl/dsl';
 import { Fetchable, FetchableData } from '../dsl/fetchable';
 import { ToSql } from '../helpers';
 import { TableLike } from '../table';
-import { TableFields } from '../types';
+import { FieldToValue, TableFields } from '../types';
 import { IdentifierOptions, identifierToSql } from '../utils';
 import { Converter, FieldTools } from './field-tools';
 
@@ -285,10 +285,14 @@ export class FieldAs<
   }
 }
 
-export class FieldGroup<T extends Field<unknown>[]> extends FieldAbstract<
-  [...(T extends Field<infer U>[] ? U[] : never)]
-> {
-  constructor(public fields: [...T]) {
+export class FieldGroup<
+  T extends Field<unknown>[],
+  TupleFields extends [...T],
+  Tuple extends {
+    [Index in keyof TupleFields]: FieldToValue<TupleFields[Index]>;
+  } & { length: TupleFields['length'] }
+> extends FieldAbstract<Tuple> {
+  constructor(public fields: TupleFields) {
     super();
   }
   toSql(options?: FieldOptions): string {

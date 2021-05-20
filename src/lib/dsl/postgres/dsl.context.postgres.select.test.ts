@@ -423,6 +423,7 @@ describe('withDatabase', () => {
         .in([
           [0, 'a'],
           [1, 'b'],
+          [1, 'b'],
         ])
         .toSql();
       expect(sql).toContain("(0,'a')");
