@@ -9,6 +9,7 @@ import {
   testSchema,
 } from '../../../test/test-utils';
 import { UniqueConstraintException } from '../../exceptions';
+import { Table } from '../../table';
 import { DSL } from '../dsl';
 import { DSLContext } from '../dsl.context';
 
@@ -114,8 +115,7 @@ describe('withDatabase', () => {
       await create.insertInto(ALONE, [testAlone[0]]).execute();
       await create
         .insertInto(ALONE, [{ ...testAlone[1], id: testAlone[0].id }])
-        .onConflict()
-        .doNothing()
+        .onConflictDoNothing()
         .execute();
       const list: Alone[] = (await client.query('select * from alone'))
         .rows as Alone[];
@@ -270,6 +270,33 @@ describe('withDatabase', () => {
       } catch (e) {
         expect(e instanceof UniqueConstraintException).toBe(true);
       }
+    });
+    it('insert set excluded', async () => {
+      await create
+        .insertInto(new Table('alone'), ALONE.fields, [
+          {
+            id: 1,
+            name: '',
+            bool: true,
+            date: DSL.now(),
+          },
+        ])
+        .onConflictConstraint('alone_pkey')
+        .doUpdate()
+        .setExcluded()
+        .execute();
+      await create
+        .insertInto(new Table('alone'), ALONE.fields, [
+          {
+            id: 1,
+            name: '',
+            bool: true,
+            date: DSL.now(),
+          },
+        ])
+        .onConflictConstraint('alone_pkey')
+        .doNothing()
+        .execute();
     });
   });
 });

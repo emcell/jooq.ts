@@ -1,10 +1,10 @@
-import { Executable } from './executable';
-import { WhereChainStep, WhereStep } from './where';
-import { JoinStep } from './join';
-import { FromStep } from './from';
 import { TableLike } from '../table';
-import { ReturningStep } from './returning';
 import { MapValueToFieldOrValue } from '../types';
+import { Executable } from './executable';
+import { FromStep } from './from';
+import { JoinStep } from './join';
+import { ReturningStep } from './returning';
+import { WhereChainStep, WhereStep } from './where';
 
 export interface OnConflictUpdateReturningStep<T>
   extends ReturningStep<T>,
@@ -18,8 +18,8 @@ export interface OnConflictUpdateSetStep<T> {
 }
 
 export interface OnConflictStep<T> {
-  doNothing(): OnConflictUpdateReturningStep<T>;
   doUpdate(): OnConflictUpdateSetStep<T>;
+  doNothing(): OnConflictUpdateReturningStep<T>;
 }
 
 export interface UpdateWhereChainStep<T>

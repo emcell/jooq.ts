@@ -21,12 +21,14 @@ import { PostgresContext } from './dsl.context.postgres';
 import {
   fieldOrValueMapToSql,
   generateFields,
+  generateFieldsFromArray,
   mapFieldToDb,
   PostgresFetchableImpl,
 } from './postgres-utils';
 
 export interface InsertContextOnConflict {
-  id?: string;
+  id?: string | Field<unknown>[];
+  constraintName?: string;
   do: 'nothing' | 'update';
   fields?: FieldOrValueMap<any>;
 }
@@ -111,8 +113,24 @@ function toSql(context: InsertContext): string {
   if (context.onConflict) {
     query.push(`ON CONFLICT`);
     if (context.onConflict.id !== undefined) {
+      if (Array.isArray(context.onConflict.id)) {
+        query.push(
+          `(${generateFieldsFromArray(
+            context.onConflict.id,
+            context.options,
+          )})`,
+        );
+      } else {
+        query.push(
+          `(${identifierToSql(context.onConflict.id, context.options)})`,
+        );
+      }
+    } else if (context.onConflict.constraintName !== undefined) {
       query.push(
-        `(${identifierToSql(context.onConflict.id, context.options)})`,
+        `ON CONSTRAINT ${identifierToSql(
+          context.onConflict.constraintName,
+          context.options,
+        )}`,
       );
     }
     if (context.onConflict.do === 'nothing') {
@@ -221,21 +239,21 @@ function OnConflictUpdateSetStepImpl<T>(
 
 function OnConflictStepImpl<T>(context: InsertContext): OnConflictStep<T> {
   return {
-    doNothing(): OnConflictUpdateReturningStep<T> {
-      return OnConflictUpdateReturningStepImpl({
-        ...copyContext(context),
-        onConflict: {
-          ...(context.onConflict as InsertContextOnConflict),
-          do: 'nothing',
-        },
-      });
-    },
     doUpdate(): OnConflictUpdateSetStep<T> {
       return OnConflictUpdateSetStepImpl<T>({
         ...copyContext(context),
         onConflict: {
           ...(context.onConflict as InsertContextOnConflict),
           do: 'update',
+        },
+      });
+    },
+    doNothing(): OnConflictUpdateReturningStep<T> {
+      return OnConflictUpdateReturningStepImpl({
+        ...copyContext(context),
+        onConflict: {
+          ...(context.onConflict as InsertContextOnConflict),
+          do: 'nothing',
         },
       });
     },
@@ -246,12 +264,33 @@ export function InsertStepImpl<T>(context: InsertContext): InsertStep<T> {
   return {
     ...UpdateExecutableImpl(context),
     ...UpdateReturningStepImpl(context),
-    onConflict(name?: keyof T | string): OnConflictStep<T> {
+    onConflict(
+      nameOrFields: (keyof T | string) | Field<unknown>[],
+    ): OnConflictStep<T> {
       return OnConflictStepImpl<T>({
         ...copyContext(context),
         onConflict: {
-          id: name as string,
+          id: Array.isArray(nameOrFields)
+            ? nameOrFields
+            : (nameOrFields as string),
+          do: 'update',
+        },
+      }) as any;
+    },
+    onConflictDoNothing(): OnConflictUpdateReturningStep<T> {
+      return OnConflictUpdateReturningStepImpl({
+        ...copyContext(context),
+        onConflict: {
           do: 'nothing',
+        },
+      });
+    },
+    onConflictConstraint(constraintName: string): OnConflictStep<T> {
+      return OnConflictStepImpl<T>({
+        ...copyContext(context),
+        onConflict: {
+          constraintName: constraintName,
+          do: 'update',
         },
       }) as any;
     },

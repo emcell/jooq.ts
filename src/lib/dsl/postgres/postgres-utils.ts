@@ -278,3 +278,14 @@ export function generateFields(
   }
   return `${sqlFields.join(',')}`;
 }
+
+export function generateFieldsFromArray(
+  fields: Field<unknown>[],
+  options?: IdentifierOptions,
+): string {
+  const sqlFields: string[] = [];
+  for (const field of fields) {
+    sqlFields.push(fieldToInsertField(field, options));
+  }
+  return `${sqlFields.join(',')}`;
+}
