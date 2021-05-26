@@ -273,7 +273,10 @@ export class FieldAs<
     super(converter);
   }
   toSql(options?: FieldOptions): string {
-    return `${this.field.toSql()} as ${identifierToSql(this.alias, options)}`;
+    return `${this.field.toSql(options)} as ${identifierToSql(
+      this.alias,
+      options,
+    )}`;
   }
 
   getName(options?: FieldOptions): string {
