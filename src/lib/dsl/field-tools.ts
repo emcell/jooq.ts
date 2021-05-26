@@ -55,3 +55,42 @@ export class UnionTypeConverter<
     return this.valueMapper[value];
   }
 }
+
+export class UnionTypeConverterWithUndefined<
+  T extends string,
+  M extends { [P in T]: number } = { [P in T]: number }
+> implements Converter<number | undefined, T | undefined> {
+  constructor(private valueMapper: M) {}
+  fromDb(value: number | undefined | null): T | undefined {
+    if (value === undefined || value === null) {
+      return undefined;
+    }
+    for (const key in this.valueMapper) {
+      if (this.valueMapper[key] === value) {
+        return (key as unknown) as T;
+      }
+    }
+    throw new Error(
+      `Value ${value} not present in fields of ${JSON.stringify(
+        this.valueMapper,
+        null,
+        4,
+      )}`,
+    );
+  }
+  toDb(value: T | undefined): number | undefined {
+    if (value === undefined || value === null) {
+      return undefined;
+    }
+    if (this.valueMapper[value] === undefined) {
+      throw new Error(
+        `Value ${value} not present in fields of ${JSON.stringify(
+          this.valueMapper,
+          null,
+          4,
+        )}`,
+      );
+    }
+    return this.valueMapper[value];
+  }
+}
