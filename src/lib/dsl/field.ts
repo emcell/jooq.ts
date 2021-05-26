@@ -57,10 +57,10 @@ export abstract class Field<T, DbType extends DbTypes = DbTypes>
   abstract bitShiftLeft(value: Field<number> | number): Field<number>;
   abstract bitShiftRight(value: Field<number> | number): Field<number>;
 
-  abstract avg(value: Field<T>): Field<number>;
-  abstract min(value: Field<T>): Field<number>;
-  abstract max(value: Field<T>): Field<number>;
-  abstract sum(value: Field<T>): Field<number>;
+  abstract avg(): Field<number>;
+  abstract min(): Field<number>;
+  abstract max(): Field<number>;
+  abstract sum(): Field<number>;
 
   abstract operator(operator: string, value: Field<T> | T): Condition;
 
@@ -179,17 +179,17 @@ export abstract class FieldAbstract<
     return new Expression<any>(this, ExpressionOperators.bitShiftRight, value);
   }
 
-  avg<T>(value: Field<T>): Field<number> {
-    return new AggregationFunction<T>(value, Aggregations.avg);
+  avg(): Field<number> {
+    return new AggregationFunction<T, DbTypes>(this, Aggregations.avg);
   }
-  min<T>(value: Field<T>): Field<number> {
-    return new AggregationFunction<T>(value, Aggregations.min);
+  min(): Field<number> {
+    return new AggregationFunction<T, DbTypes>(this, Aggregations.min);
   }
-  max<T>(value: Field<T>): Field<number> {
-    return new AggregationFunction<T>(value, Aggregations.max);
+  max(): Field<number> {
+    return new AggregationFunction<T, DbTypes>(this, Aggregations.max);
   }
-  sum<T>(value: Field<T>): Field<number> {
-    return new AggregationFunction<T>(value, Aggregations.sum);
+  sum(): Field<number> {
+    return new AggregationFunction<T, DbTypes>(this, Aggregations.sum);
   }
 
   operator(operator: string, value: Field<T> | T): Condition {
@@ -385,18 +385,19 @@ export const Aggregations = {
   count: <Aggregation>{ aggregation: 'count' },
 };
 
-export class AggregationFunction<T>
-  extends FieldAbstract<number>
-  implements Field<number> {
+export class AggregationFunction<
+  T,
+  DbType extends DbTypes = T extends DbTypes ? T : DbTypes
+> extends FieldAbstract<number> {
   constructor(
-    private readonly field: Field<T>,
+    private readonly field: Field<T, DbType>,
     private readonly aggregation: Aggregation,
   ) {
     super();
   }
 
   toSql(options?: FieldOptions): string {
-    return `${this.aggregation}(${this.field.toSql(options)})`;
+    return `${this.aggregation.aggregation}(${this.field.toSql(options)})`;
   }
 
   getName(options?: FieldOptions): string {
