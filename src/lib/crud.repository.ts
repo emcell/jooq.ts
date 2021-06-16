@@ -114,22 +114,21 @@ export class CrudRepository<T, PK extends keyof T> {
         this.tableWithoutPK.fields,
       ),
     );
-
-    return this.create
+    const query = this.create
       .insertInto(this.tableWithoutPK, convertedObjects)
       .onConflict(conflictingField)
       .doUpdate()
       .setExcluded()
-      .returning()
-      .fetch();
+      .returning();
+    return query.fetch();
   }
-  public async insertOnConflictDoNothing(object: T): Promise<T> {
+  public async insertOnConflictDoNothing(object: T): Promise<T | undefined> {
     return this.create
       .insertInto(this.tableDefinition, [object])
       .onConflict(this.primaryKey)
       .doNothing()
       .returning()
-      .fetchOneOrThrow();
+      .fetchOne();
   }
   public async insertAllOnConflictDoNothing(objects: T[]): Promise<T[]> {
     return this.create

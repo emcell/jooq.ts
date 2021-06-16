@@ -175,4 +175,16 @@ describe('withDatabase', () => {
     const dataEmpty = await aloneRepository.findAll();
     expect(dataEmpty.length).toBe(0);
   });
+
+  it('insertOnConflictDoNothing', async () => {
+    const aloneRepository = new CrudRepository(create, ALONE, 'id');
+    const d: Alone = {
+      id: 101,
+      name: 'b',
+      bool: false,
+      date: new Date(),
+    };
+    expect(await aloneRepository.insertOnConflictDoNothing(d)).toBeTruthy();
+    expect(await aloneRepository.insertOnConflictDoNothing(d)).toBe(undefined);
+  });
 });
