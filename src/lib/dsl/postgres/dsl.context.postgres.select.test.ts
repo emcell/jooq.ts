@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import {
+  ALONE,
   ALONE_WITH_CONVERT,
   DEVICE,
   INFORMATION_SCHEMA_VIEWS,
@@ -427,6 +428,13 @@ describe('withDatabase', () => {
         ])
         .toSql();
       expect(sql).toContain("(0,'a')");
+    });
+    it('should select field in with empty list', async () => {
+      const result = await create
+        .selectFrom(ALONE)
+        .where(ALONE.id.in([]))
+        .fetch();
+      expect(result.length).toBe(0);
     });
   });
 });

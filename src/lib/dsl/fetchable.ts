@@ -39,6 +39,9 @@ export class FetchableData<T> implements Fetchable<T> {
   }
 
   dataToTable(): string {
+    if (this.data.length === 0) {
+      return 'select * from (select 1 as value) as t where 1=0';
+    }
     return this.data
       .map(
         (value) =>
@@ -72,7 +75,7 @@ export class FetchableData<T> implements Fetchable<T> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   toSql(_options?: IdentifierOptions): string {
     if (this.data.length === 0) {
-      return '()';
+      return '(null)';
     }
     return `${this.data
       .map((value) =>
