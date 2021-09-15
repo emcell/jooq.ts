@@ -23,6 +23,7 @@ export abstract class Field<T, DbType extends DbTypes = DbTypes>
   abstract as(alias: string): Field<T, DbType>;
 
   abstract eq(value: Field<T> | T): Condition;
+  abstract neq(value: Field<T> | T): Condition;
   abstract isNull(): Condition;
   abstract isNotNull(): Condition;
   abstract lessThan(value: Field<T> | T): Condition;
