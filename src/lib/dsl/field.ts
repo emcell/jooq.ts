@@ -78,6 +78,9 @@ export abstract class FieldAbstract<
   eq<T>(value: Field<T> | T): Condition {
     return new ConditionCompare(this, '=', value);
   }
+  neq<T>(value: Field<T> | T): Condition {
+    return new ConditionCompare(this, '!=', value);
+  }
   isNull(): Condition {
     return new ConditionUnaryOperator(this, 'is null');
   }
