@@ -1,4 +1,5 @@
 import { FieldDef, Pool, QueryArrayResult } from 'pg';
+import format from 'pg-format';
 import { Condition, objectToConditions } from '../../condition';
 import { convertException } from '../../exceptions';
 import { Table, TableAliased, TableWithFields } from '../../table';
@@ -193,8 +194,10 @@ export function mapFieldToDb(
     return `(${value
       .map((nestedValue) => mapFieldToDb(nestedValue, options))
       .join(',')})`;
+  } else if (typeof value === 'string') {
+    return `'${format.string(value)}'`;
   }
-  return `'${value}'`;
+  return `${value}`;
 }
 
 export function toConditions<T>(
