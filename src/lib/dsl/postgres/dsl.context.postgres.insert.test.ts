@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import { Client } from 'pg';
+import format from 'pg-format';
 import {
   ALONE,
   Alone,
@@ -297,6 +298,22 @@ describe('withDatabase', () => {
         .onConflictConstraint('alone_pkey')
         .doNothing()
         .execute();
+    });
+    it('insert escaped', async () => {
+      await create
+        .insertInto(new Table('alone'), ALONE.fields, [
+          {
+            id: 1,
+            name: "a'b",
+            bool: true,
+            date: DSL.now(),
+          },
+        ])
+        .execute();
+    });
+    it('pg-format', () => {
+      expect(format.literal("a'b")).toBe("'a''b'");
+      expect(format.literal('ab')).toBe("'ab'");
     });
   });
 });

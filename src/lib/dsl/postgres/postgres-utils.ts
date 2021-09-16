@@ -195,7 +195,7 @@ export function mapFieldToDb(
       .map((nestedValue) => mapFieldToDb(nestedValue, options))
       .join(',')})`;
   } else if (typeof value === 'string') {
-    return `'${format.string(value)}'`;
+    return format.literal(value);
   }
   return `${value}`;
 }
