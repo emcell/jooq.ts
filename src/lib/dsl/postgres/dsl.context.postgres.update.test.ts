@@ -1,5 +1,6 @@
 import { Client } from 'pg';
 import {
+  ALONE,
   ALONE_WITH_CONVERT,
   Device,
   DEVICE,
@@ -129,5 +130,12 @@ describe('update', () => {
       })
       .toSql();
     expect(sql).toContain(`"name"='a'`);
+  });
+  it('udpates with escaped values', async () => {
+    await create
+      .update(ALONE, {
+        name: "a'b",
+      })
+      .execute();
   });
 });

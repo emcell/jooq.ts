@@ -154,6 +154,17 @@ export class CrudRepository<T, PK extends keyof T> {
       .fetchOneOrThrow()) as T;
   }
 
+  public async updateOptional<K extends keyof T>(
+    id: T[PK],
+    object: Subset<T, K>,
+  ): Promise<T | undefined> {
+    return (await this.create
+      .update(this.tableDefinition, object)
+      .where(this.getWhereClauseForId(id))
+      .returning(this.tableDefinition.fields)
+      .fetchOne()) as T;
+  }
+
   public async findOneById(id: T[PK]): Promise<T | undefined> {
     return this.create
       .selectFrom(this.tableDefinition)

@@ -1,6 +1,6 @@
 {
   "name": "jooq.ts",
-  "version": "0.1.38",
+  "version": "0.1.39",
   "license": "MIT",
   "main": "dist/main/index.js",
   "typings": "dist/main/index.d.ts",
