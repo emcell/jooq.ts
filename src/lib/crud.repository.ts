@@ -143,10 +143,25 @@ export class CrudRepository<T, PK extends keyof T> {
     return this.tableDefinition.fields[this.primaryKey].eq(id as any);
   }
 
+  protected hasAnyUsableFields<K extends keyof T>(
+    object: Subset<T, K>,
+  ): boolean {
+    const o: any = object;
+    for (const k in this.tableDefinition.fields) {
+      if (o[k]) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public async update<K extends keyof T>(
     id: T[PK],
     object: Subset<T, K>,
   ): Promise<T> {
+    if (!this.hasAnyUsableFields(object)) {
+      return this.findOneByIdOrThrow(id);
+    }
     return (await this.create
       .update(this.tableDefinition, object)
       .where(this.getWhereClauseForId(id))
@@ -158,6 +173,9 @@ export class CrudRepository<T, PK extends keyof T> {
     id: T[PK],
     object: Subset<T, K>,
   ): Promise<T | undefined> {
+    if (!this.hasAnyUsableFields(object)) {
+      return this.findOneByIdOrThrow(id);
+    }
     return (await this.create
       .update(this.tableDefinition, object)
       .where(this.getWhereClauseForId(id))
