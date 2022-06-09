@@ -308,6 +308,29 @@ export class CrudRepository<T, PK extends keyof T> {
     return ids.map((id) => map.get(id) || []);
   }
 
+  public async mapOneToMany<
+    FieldName extends string | number | symbol,
+    OtherType,
+    ReferenceKeyValue extends keyof OtherType
+  >(
+    objects: T[],
+    fieldName: FieldName,
+    otherTypeRepository: CrudRepository<OtherType, keyof OtherType>,
+    referenceKey: ReferenceKeyValue,
+    field: Field<OtherType[ReferenceKeyValue]>,
+  ): Promise<(T & { [fieldName in FieldName]: OtherType[] })[]> {
+    const ids = objects.map((item) => item[this.primaryKey]);
+    const mapObjects = await otherTypeRepository.fetchOneToMany(
+      ids as any,
+      referenceKey,
+      field,
+      [],
+    );
+    return objects.map((object, index) => {
+      return { ...object, [fieldName]: mapObjects[index] };
+    }) as any;
+  }
+
   public async fetchMap(
     conditions: Condition | Condition[],
     options?: FetchOptions,

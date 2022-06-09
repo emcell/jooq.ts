@@ -127,6 +127,23 @@ describe('withDatabase', () => {
     expect(locationsDevices[1].length).toBe(4);
     expect(locationsDevices[2].length).toBe(0);
   });
+  it('mapOneToMany', async () => {
+    await locationRepository.insertAll(testLocations);
+    await deviceRepository.insertAll(testDevices);
+    const locations = await locationRepository.findAll();
+    const locationsWithDevices = await locationRepository.mapOneToMany(
+      locations,
+      'a',
+      deviceRepository,
+      'idLocation',
+      DEVICE.idLocation,
+    );
+    locationsWithDevices.sort((a, b) => a.id - b.id);
+    expect(locationsWithDevices.length).toBe(3);
+    expect(locationsWithDevices[0].a.length).toBe(3);
+    expect(locationsWithDevices[1].a.length).toBe(4);
+    expect(locationsWithDevices[2].a.length).toBe(0);
+  });
   it('fetchOneToOne', async () => {
     await locationRepository.insertAll(testLocations);
     await deviceRepository.insertAll(testDevices);
