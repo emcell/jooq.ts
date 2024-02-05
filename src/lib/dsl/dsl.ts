@@ -1,6 +1,6 @@
 import { Except } from 'type-fest';
 import { Condition, ConditionAnd, ConditionOr } from '../condition';
-import { makeTableDefinition, Table, TableWithFields } from '../table';
+import { Table, TableWithFields, makeTableDefinition } from '../table';
 import { FieldsForType, TableFields } from '../types';
 import { DSLContext } from './dsl.context';
 import { Field, FieldExcluded, FieldName, FieldRaw, FieldTable } from './field';
@@ -76,13 +76,17 @@ export class DSL {
   static tableField<
     TableType,
     FieldType,
-    DbType extends DbTypes = FieldType extends DbTypes ? FieldType : DbTypes
+    DbType extends DbTypes = FieldType extends DbTypes ? FieldType : DbTypes,
   >(
     table: Table,
     field: keyof TableType,
     converter?: Converter<DbType, FieldType>,
   ): Field<FieldType, DbType> {
-    return new FieldTable<FieldType, DbType>(table, `${field}`, converter);
+    return new FieldTable<FieldType, DbType>(
+      table,
+      `${String(field)}`,
+      converter,
+    );
   }
 
   static withoutFields<T, Keys extends keyof T>(
@@ -95,7 +99,7 @@ export class DSL {
       delete copy.fields[key];
     }
 
-    return (copy as unknown) as TableWithFields<Except<T, Keys>>;
+    return copy as unknown as TableWithFields<Except<T, Keys>>;
   }
 
   static excluded<T>(fieldName?: string): Field<T> {
