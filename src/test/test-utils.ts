@@ -20,17 +20,18 @@ interface InformationSchemaViews {
   viewDefinition: string;
 }
 
-export const INFORMATION_SCHEMA_VIEWS = DSL.tableDefinition<InformationSchemaViews>(
-  new TableRaw('information_schema.views'),
-  (table) => {
-    return {
-      tableCatalog: new FieldTable<string>(table, 'table_catalog'),
-      tableSchema: new FieldTable<string>(table, 'table_schema'),
-      tableName: new FieldTable<string>(table, 'table_name'),
-      viewDefinition: new FieldTable<string>(table, 'view_definition'),
-    };
-  },
-);
+export const INFORMATION_SCHEMA_VIEWS =
+  DSL.tableDefinition<InformationSchemaViews>(
+    new TableRaw('information_schema.views'),
+    (table) => {
+      return {
+        tableCatalog: new FieldTable<string>(table, 'table_catalog'),
+        tableSchema: new FieldTable<string>(table, 'table_schema'),
+        tableName: new FieldTable<string>(table, 'table_name'),
+        viewDefinition: new FieldTable<string>(table, 'view_definition'),
+      };
+    },
+  );
 
 export const ALONE = DSL.tableDefinition<Alone>(
   new Table('alone'),

@@ -23,7 +23,7 @@ export class Table<T = any> extends TableLike {
 
   field<
     K extends keyof T = keyof T,
-    DbType extends DbTypes = T[K] extends DbTypes ? T[K] : never
+    DbType extends DbTypes = T[K] extends DbTypes ? T[K] : never,
   >(
     field: K,
     ...converter: T[K] extends DbTypes
@@ -69,7 +69,7 @@ export type TableWithFields<T, F extends TableFields = FieldsForType<T>> = {
 
 export function makeTableDefinition<
   T,
-  F extends TableFields = FieldsForType<T>
+  F extends TableFields = FieldsForType<T>,
 >(
   table: Table,
   fields: (table: Table, fields: (fields: F) => F) => F,

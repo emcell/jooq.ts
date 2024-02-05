@@ -6,7 +6,10 @@ function toMessage(e: any): string {
 }
 
 export class JooqException extends Error {
-  constructor(public originalError: any, public query?: string) {
+  constructor(
+    public originalError: any,
+    public query?: string,
+  ) {
     super(
       query
         ? `${toMessage(originalError)} | ${query}`

@@ -204,4 +204,10 @@ describe('withDatabase', () => {
     expect(await aloneRepository.insertOnConflictDoNothing(d)).toBeTruthy();
     expect(await aloneRepository.insertOnConflictDoNothing(d)).toBe(undefined);
   });
+
+  it('should be possible to create an update argument by hand without specifying all itesm', async () => {
+    const upd: Parameters<CrudRepository<Location, 'id'>['update']>[1] = {};
+    await locationRepository.update(1, upd);
+    await locationRepository.update(1, {});
+  });
 });

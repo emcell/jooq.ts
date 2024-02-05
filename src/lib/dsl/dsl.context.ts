@@ -52,10 +52,10 @@ export interface DSLContext {
     values: FieldOrValueMap<T>,
   ): UpdateStep<T>;
 
-  update<T, K extends keyof T>(
+  update<T>(
     tableDefinition: TableWithFields<T>,
-    values: FieldOrValueMap<Subset<T, K>>,
-  ): UpdateStep<Subset<T, K>>;
+    values: FieldOrValueMap<Subset<T>>,
+  ): UpdateStep<Subset<T>>;
 
   delete(table: TableLike): DeleteStep;
   end(): Promise<void>;

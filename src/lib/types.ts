@@ -29,9 +29,7 @@ export interface Assignment<T> {
   value: Field<T> | T;
 }
 
-export type Subset<T, K extends keyof T> = {
-  [P in K]: T[P];
-};
+export type Subset<T> = Partial<T>;
 
 export type Page = {
   offset?: number;

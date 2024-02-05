@@ -1,34 +1,20 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
-// https://github.com/microsoft/vscode-dev-containers/tree/v0.158.0/containers/docker-in-docker
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
 {
-	"name": "Docker in Docker",
-	"dockerFile": "Dockerfile",
-	"runArgs": ["--init", "--privileged"],
-	"overrideCommand": false,
-
-	// Use this environment variable if you need to bind mount your local source code into a new container.
-	// Set *default* container specific settings.json values on container create.
-	"settings": {
-		"terminal.integrated.shell.linux": "/bin/bash",
-		},
-
-	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": [
-		"ms-azuretools.vscode-docker",
-		"dbaeumer.vscode-eslint",
-		"firsttris.vscode-jest-runner",
-		"ckolkman.vscode-postgres",
-		"esbenp.prettier-vscode",
-		"eamodio.gitlens",
-		"rbbit.typescript-hero",
-	],
-
-	"postCreateCommand": "yarn install",
-
+	"name": "Node.js & TypeScript",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+	}
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
-
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "docker --version",
-
+	// "postCreateCommand": "yarn install",
+	// Configure tool-specific properties.
+	// "customizations": {},
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	"remoteUser": "root"
 }
